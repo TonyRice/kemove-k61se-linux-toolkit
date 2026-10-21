@@ -1,0 +1,6 @@
+{
+  "name": "fire bars",
+  "design": "bars",
+  "palette": ["FF0000", "FF8000", "FFFF00"],
+  "mode": "height"
+}

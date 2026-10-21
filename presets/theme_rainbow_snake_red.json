@@ -1,0 +1,13 @@
+{
+  "name": "theme rainbow_snake_red",
+  "effect": 10,
+  "brightness": 5,
+  "speed": 5,
+  "rainbow": false,
+  "colour": [
+    255,
+    0,
+    0
+  ],
+  "notes": "effect 0x0A + single colour (255, 0, 0), written into that effect's own record (0xD2)"
+}

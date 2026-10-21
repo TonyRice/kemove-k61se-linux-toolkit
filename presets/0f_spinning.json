@@ -1,0 +1,9 @@
+{
+  "name": "effect spinning",
+  "effect": 15,
+  "brightness": 5,
+  "speed": 5,
+  "rainbow": true,
+  "colour": null,
+  "notes": "effect 0x0F, brightness 5, speed 5, rainbow on (the form the sweep captured); leaves the colour block alone"
+}

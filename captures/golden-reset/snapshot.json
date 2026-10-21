@@ -1,0 +1,203 @@
+{
+  "schema": 1,
+  "kind": "k61se-snapshot",
+  "read_only": true,
+  "created": "2026-10-20T16:28:11-05:00",
+  "device": {
+    "vid": "0x258A",
+    "pid": "0x010C",
+    "interface": 1
+  },
+  "clean": true,
+  "other_writers": [],
+  "other_writers_end": [],
+  "capture": {
+    "layers": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "macro_size": 4096
+  },
+  "analysis": {
+    "keymaps": {
+      "0": {
+        "esc_ok": true,
+        "matched": 60,
+        "checked": 60,
+        "plausible": 61,
+        "looks_like_keymap": true
+      },
+      "1": {
+        "esc_ok": true,
+        "matched": 60,
+        "checked": 60,
+        "plausible": 61,
+        "looks_like_keymap": true
+      },
+      "2": {
+        "esc_ok": true,
+        "matched": 60,
+        "checked": 60,
+        "plausible": 61,
+        "looks_like_keymap": true
+      },
+      "3": {
+        "esc_ok": true,
+        "matched": 60,
+        "checked": 60,
+        "plausible": 61,
+        "looks_like_keymap": true
+      },
+      "4": {
+        "esc_ok": true,
+        "matched": 60,
+        "checked": 60,
+        "plausible": 61,
+        "looks_like_keymap": true
+      },
+      "5": {
+        "esc_ok": true,
+        "matched": 60,
+        "checked": 60,
+        "plausible": 61,
+        "looks_like_keymap": true
+      },
+      "6": {
+        "esc_ok": true,
+        "matched": 60,
+        "checked": 60,
+        "plausible": 61,
+        "looks_like_keymap": true
+      },
+      "7": {
+        "esc_ok": true,
+        "matched": 60,
+        "checked": 60,
+        "plausible": 61,
+        "looks_like_keymap": true
+      }
+    },
+    "lighting": {
+      "mode": "0x0B",
+      "mode_name": "rainbow wave"
+    }
+  },
+  "blocks": {
+    "info": {
+      "read_op": "0x82",
+      "write_op": null,
+      "sub": 1,
+      "size": 6,
+      "file": "info.bin",
+      "sha256": "1614965d2f611ebb9dc7e78a3fbbb66a187c3b52eddb7d579f527174a95ea50c",
+      "restore": "read-only",
+      "hex": "03 00 00 00 01 71"
+    },
+    "lighting": {
+      "read_op": "0x84",
+      "write_op": "0x04",
+      "sub": 0,
+      "size": 128,
+      "file": "lighting.bin",
+      "sha256": "1ca6dca080999ee96ab1d41e6846e3d1bbdb2da52856a4463f0fc723ba77969f",
+      "restore": "supported"
+    },
+    "colour": {
+      "read_op": "0x8A",
+      "write_op": "0x0A",
+      "sub": 0,
+      "size": 420,
+      "file": "colour.bin",
+      "sha256": "24ba9be8dd660c7d03b3d916707cb143289714a9fe34560f47b52936d33efeb8",
+      "restore": "supported"
+    },
+    "keymap-layer0": {
+      "read_op": "0x83",
+      "write_op": "0x03",
+      "sub": 0,
+      "size": 504,
+      "file": "keymap-layer0.bin",
+      "sha256": "39d19f848c013ffd9c65ddbd16c1a013136fcc8fed9175e244ca9025d968cc1a",
+      "restore": "layer-0-confirmed"
+    },
+    "keymap-layer1": {
+      "read_op": "0x83",
+      "write_op": "0x03",
+      "sub": 1,
+      "size": 504,
+      "file": "keymap-layer1.bin",
+      "sha256": "39d19f848c013ffd9c65ddbd16c1a013136fcc8fed9175e244ca9025d968cc1a",
+      "restore": "layer-write-unverified"
+    },
+    "keymap-layer2": {
+      "read_op": "0x83",
+      "write_op": "0x03",
+      "sub": 2,
+      "size": 504,
+      "file": "keymap-layer2.bin",
+      "sha256": "39d19f848c013ffd9c65ddbd16c1a013136fcc8fed9175e244ca9025d968cc1a",
+      "restore": "layer-write-unverified"
+    },
+    "keymap-layer3": {
+      "read_op": "0x83",
+      "write_op": "0x03",
+      "sub": 3,
+      "size": 504,
+      "file": "keymap-layer3.bin",
+      "sha256": "39d19f848c013ffd9c65ddbd16c1a013136fcc8fed9175e244ca9025d968cc1a",
+      "restore": "layer-write-unverified"
+    },
+    "keymap-layer4": {
+      "read_op": "0x83",
+      "write_op": "0x03",
+      "sub": 4,
+      "size": 504,
+      "file": "keymap-layer4.bin",
+      "sha256": "39d19f848c013ffd9c65ddbd16c1a013136fcc8fed9175e244ca9025d968cc1a",
+      "restore": "layer-write-unverified"
+    },
+    "keymap-layer5": {
+      "read_op": "0x83",
+      "write_op": "0x03",
+      "sub": 5,
+      "size": 504,
+      "file": "keymap-layer5.bin",
+      "sha256": "39d19f848c013ffd9c65ddbd16c1a013136fcc8fed9175e244ca9025d968cc1a",
+      "restore": "layer-write-unverified"
+    },
+    "keymap-layer6": {
+      "read_op": "0x83",
+      "write_op": "0x03",
+      "sub": 6,
+      "size": 504,
+      "file": "keymap-layer6.bin",
+      "sha256": "39d19f848c013ffd9c65ddbd16c1a013136fcc8fed9175e244ca9025d968cc1a",
+      "restore": "layer-write-unverified"
+    },
+    "keymap-layer7": {
+      "read_op": "0x83",
+      "write_op": "0x03",
+      "sub": 7,
+      "size": 504,
+      "file": "keymap-layer7.bin",
+      "sha256": "39d19f848c013ffd9c65ddbd16c1a013136fcc8fed9175e244ca9025d968cc1a",
+      "restore": "layer-write-unverified"
+    },
+    "macros": {
+      "read_op": "0x85",
+      "write_op": "0x05",
+      "sub": 0,
+      "size": 4096,
+      "file": "macros.bin",
+      "sha256": "ad7facb2586fc6e966c004d7d1d16b024f5805ff7cb47c7a85dabd8b48892ca7",
+      "restore": "blocked-unverified"
+    }
+  },
+  "errors": []
+}

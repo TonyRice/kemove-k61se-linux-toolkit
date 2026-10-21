@@ -1,0 +1,8 @@
+# KEMOVE K61SE: let the logged-in desktop user open the keyboard/mouse event
+# nodes without sudo.  This is what k61se_arrows.py needs for evdev grab.
+# The 70- prefix matters: the uaccess tag must exist before seat-late rules.
+
+SUBSYSTEM=="input", KERNEL=="event*", ENV{ID_VENDOR_ID}=="258a", ENV{ID_MODEL_ID}=="010c", TAG+="uaccess"
+
+# Also cover the HID raw node used by the configuration tools.
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="258a", ATTRS{idProduct}=="010c", TAG+="uaccess"

@@ -1,0 +1,13 @@
+{
+  "name": "colour quarter_white",
+  "effect": null,
+  "brightness": null,
+  "speed": null,
+  "rainbow": null,
+  "colour": [
+    64,
+    64,
+    64
+  ],
+  "notes": "colour only; written into the active effect's own record, so it shows immediately if that effect is not in rainbow mode"
+}

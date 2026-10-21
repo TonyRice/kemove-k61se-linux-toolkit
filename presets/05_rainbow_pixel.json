@@ -1,0 +1,9 @@
+{
+  "name": "effect rainbow pixel changing",
+  "effect": 5,
+  "brightness": 5,
+  "speed": 5,
+  "rainbow": true,
+  "colour": null,
+  "notes": "effect 0x05, brightness 5, speed 5, rainbow on (the form the sweep captured); leaves the colour block alone"
+}

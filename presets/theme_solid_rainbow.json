@@ -1,0 +1,9 @@
+{
+  "name": "theme solid_rainbow",
+  "effect": 1,
+  "brightness": 5,
+  "speed": 5,
+  "rainbow": true,
+  "colour": null,
+  "notes": "effect 0x01 + the firmware's own rainbow (its colour record is ignored)"
+}

@@ -1,0 +1,8 @@
+{
+  "name": "psychedelic spin",
+  "design": "psychedelic",
+  "palette": ["FF00FF", "00FFFF", "FFFF00", "FF8000", "00FF80", "8000FF"],
+  "mode": "column",
+  "flat": false,
+  "max_brightness": true
+}

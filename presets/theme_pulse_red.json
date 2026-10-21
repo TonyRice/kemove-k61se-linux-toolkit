@@ -1,0 +1,13 @@
+{
+  "name": "theme pulse_red",
+  "effect": 2,
+  "brightness": 5,
+  "speed": 5,
+  "rainbow": false,
+  "colour": [
+    255,
+    0,
+    0
+  ],
+  "notes": "effect 0x02 + single colour (255, 0, 0), written into that effect's own record (0x2A)"
+}

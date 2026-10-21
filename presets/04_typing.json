@@ -1,0 +1,9 @@
+{
+  "name": "effect typing feedback",
+  "effect": 4,
+  "brightness": 5,
+  "speed": 5,
+  "rainbow": true,
+  "colour": null,
+  "notes": "effect 0x04, brightness 5, speed 5, rainbow on (the form the sweep captured); leaves the colour block alone"
+}

@@ -1,0 +1,837 @@
+SendMusic Data decompiled
+
+
+undefined4 __cdecl SendMusicData(int *param_1,undefined4 param_2,undefined4 param_3)
+
+{
+  undefined4 uVar1;
+  
+                    /* 0x15c0  12  SendMusicData */
+  if ((param_1 != (int *)0x0) && (param_1[1] == -0x7272a988)) {
+    uVar1 = (**(code **)(*param_1 + 0x44))(param_2,param_3,0);
+    return uVar1;
+  }
+  (*(code *)PTR_FUN_1001d040)(L"SendMusicData Err: tDev=%x",param_1);
+  return 0;
+}
+
+
+
+SetTable 
+
+
+undefined4 __cdecl SetTable(int *param_1,int param_2,int param_3)
+
+{
+  int iVar1;
+  
+                    /* 0x1ad0  20  SetTable */
+  if ((param_1 == (int *)0x0) || (param_1[1] != -0x7272a988)) {
+    (*(code *)PTR_FUN_1001d040)(L"SetTable Err: tDev=%x",param_1);
+    return 0;
+  }
+  if ((param_2 != 0) && (param_3 == 0x80)) {
+    Sleep(0x1e);
+    iVar1 = (**(code **)(*param_1 + 0x2c))(param_2,0x80);
+    if (iVar1 == 0) {
+      (*(code *)PTR_FUN_1001d040)(L"SetTable Err");
+      return 0;
+    }
+    return 1;
+  }
+  (*(code *)PTR_FUN_1001d040)(L"SetTable Err: pData=%x, nSize=%d",param_2,param_3);
+  return 0;
+}
+
+
+SetMultiBoard
+
+
+undefined4 __cdecl SetMultiBoard(int param_1)
+
+{
+                    /* 0x1540  19  SetMultiBoard */
+  if ((param_1 != 0) && (*(int *)(param_1 + 4) == -0x7272a988)) {
+    (*(code *)PTR_FUN_1001d040)(L"SetMultiBoard tDev=%x",param_1);
+    *(undefined4 *)(param_1 + 0x28) = 1;
+    return 1;
+  }
+  (*(code *)PTR_FUN_1001d040)(L"SetMultiBoard Err: tDev=%x",param_1);
+  return 0;
+}
+
+
+setMacro
+
+
+/* WARNING: Function: __alloca_probe replaced with injection: alloca_probe */
+/* WARNING: Type propagation algorithm not settling */
+
+void __cdecl SetMacro(int *param_1)
+
+{
+  int iVar1;
+  short sVar2;
+  size_t _Size;
+  short *psVar3;
+  int iVar4;
+  wchar_t *pwVar5;
+  int *local_1008;
+  undefined uStack_1004;
+  undefined auStack_1003 [4095];
+  uint local_4;
+  
+                    /* 0x2ed0  18  SetMacro */
+  local_4 = DAT_1001c058 ^ (uint)&local_1008;
+  local_1008 = param_1;
+  if ((param_1 == (int *)0x0) || (param_1[1] != -0x7272a988)) {
+    (*(code *)PTR_FUN_1001d040)(L"SetMacro Err: tDev=%x",param_1);
+    @__security_check_cookie@4(local_4 ^ (uint)&local_1008);
+    return;
+  }
+  (*(code *)PTR_FUN_1001d040)(L"SetMacro: gMacroNum=%d, gSize=%d",DAT_1001e0b4,DAT_1001f248);
+  _Size = DAT_1001f248;
+  iVar4 = DAT_1001e0b4;
+  if ((DAT_1001e0b4 < 1) || ((int)DAT_1001f248 < 1)) {
+    @__security_check_cookie@4(local_4 ^ (uint)&local_1008);
+    return;
+  }
+  uStack_1004 = 0;
+  _memset((void *)((int)&uStack_1004 + 1),0,0xfff);
+  iVar1 = iVar4 * 4 + _Size;
+  if (iVar1 < 0x1001) {
+    _memcpy(&uStack_1004,&DAT_1001e0b8,iVar4 * 4);
+    _memcpy((undefined2 *)((int)&uStack_1004 + iVar4 * 2 * 2),&DAT_1001e248,_Size);
+    psVar3 = (short *)&uStack_1004;
+    if (0 < iVar4) {
+      sVar2 = (short)iVar4;
+      do {
+        *psVar3 = *psVar3 + sVar2 * 4;
+        psVar3 = psVar3 + 2;
+        iVar4 = iVar4 + -1;
+      } while (iVar4 != 0);
+    }
+    (*(code *)PTR_FUN_1001d040)(L"SetMacro:");
+    FUN_10003310((int)&uStack_1004,100,10,0);
+    iVar4 = (**(code **)(*local_1008 + 0x24))(&uStack_1004,iVar1);
+    if (iVar4 != 0) goto LAB_10002f7d;
+    pwVar5 = L"SetMacro: Failed";
+  }
+  else {
+    pwVar5 = L"SetMacro: data size too large";
+  }
+  (*(code *)PTR_FUN_1001d040)(pwVar5);
+LAB_10002f7d:
+  @__security_check_cookie@4(local_4 ^ (uint)&local_1008);
+  return;
+}
+
+setLED
+
+
+void __cdecl SetLED(int *param_1,int *param_2)
+
+{
+  int iVar1;
+  int iVar2;
+  wchar_t *pwVar3;
+  undefined uStack_228;
+  undefined uStack_227;
+  undefined uStack_226;
+  undefined uStack_21a;
+  undefined uStack_219;
+  byte abStack_1f8 [72];
+  undefined auStack_1b0 [420];
+  uint uStack_c;
+  uint local_4;
+  
+                    /* 0x1600  16  SetLED */
+  local_4 = DAT_1001c058 ^ (uint)&uStack_228;
+  if ((param_1 == (int *)0x0) || (param_1[1] != -0x7272a988)) {
+    (*(code *)PTR_FUN_1001d040)(L"SetLED Err: tDev=%x",param_1);
+    @__security_check_cookie@4(local_4 ^ (uint)&uStack_228);
+    return;
+  }
+  if ((param_2 == (int *)0x0) || (0x14 < *param_2)) {
+    (*(code *)PTR_FUN_1001d040)(L"SetLED Err: pData=%x",param_2);
+    @__security_check_cookie@4(local_4 ^ (uint)&uStack_228);
+    return;
+  }
+  (*(code *)PTR_FUN_1001d040)
+            (L"SetLED Start: mode=%d, nBri=%d, nSpeed=%d, bColorFull=%d, clrLight=0x%x",*param_2,
+             param_2[1],param_2[2],param_2[3],param_2[4]);
+  uStack_228 = 0;
+  _memset(&uStack_227,0,0x7f);
+  Sleep(0x1e);
+  iVar2 = (**(code **)(*param_1 + 0x30))(&uStack_228,0x80);
+  if (iVar2 == 0) {
+    pwVar3 = L"GetLED Err";
+  }
+  else {
+    if (DAT_1001f24c != 0) {
+      FUN_10003310((int)&stack0xfffffdd0,0x80,10,0x10018fc0);
+    }
+    uStack_226 = *(undefined *)param_2;
+    abStack_1f8[1] = 0xff;
+    abStack_1f8[0] = 0xff;
+    iVar2 = *param_2;
+    uStack_227 = 0;
+    if (0 < iVar2) {
+      iVar1 = param_2[3];
+      abStack_1f8[iVar2 * 2] = *(byte *)(param_2 + 1);
+      abStack_1f8[iVar2 * 2 + 1] = -(iVar1 != 0) & 7U | *(char *)(param_2 + 2) << 4;
+    }
+    uStack_21a = *(undefined *)(param_2 + 7);
+    uStack_219 = *(undefined *)(param_2 + 8);
+    if (DAT_1001f24c != 0) {
+      FUN_10003310((int)&stack0xfffffdd0,0x80,10,0x10018fd8);
+    }
+    Sleep(0x1e);
+    iVar2 = (**(code **)(*param_1 + 0x2c))(&stack0xfffffdd0,0x80);
+    if (iVar2 == 0) {
+      pwVar3 = L"SetLED Err";
+    }
+    else {
+      if ((*param_2 == 0) || (param_2[3] != 0)) goto LAB_100016b1;
+      Sleep(0x32);
+      auStack_1b0[0] = 0;
+      _memset(auStack_1b0 + 1,0,0x1a3);
+      iVar2 = (**(code **)(*param_1 + 0x40))(auStack_1b0,0x1a4);
+      if (iVar2 == 0) {
+        pwVar3 = L"GetLedRgbTab Err";
+      }
+      else {
+        FUN_10003440(L"rgbTab(Load): ",0x1a4,0x15,3);
+        iVar2 = *param_2 * 0x15;
+        if ((uint)CONCAT21(CONCAT11(auStack_1b0[iVar2 + 2],auStack_1b0[iVar2 + 1]),
+                           auStack_1b0[iVar2]) == param_2[4]) goto LAB_100016b1;
+        auStack_1b0[iVar2] = *(undefined *)(param_2 + 4);
+        auStack_1b0[iVar2 + 1] = *(undefined *)((int)param_2 + 0x11);
+        auStack_1b0[iVar2 + 2] = *(undefined *)((int)param_2 + 0x12);
+        FUN_10003440(L"rgbTab(Save): ",0x1a4,0x15,3);
+        Sleep(0x50);
+        iVar2 = (**(code **)(*param_1 + 0x3c))(auStack_1b0,0x1a4);
+        if (iVar2 != 0) goto LAB_100016b1;
+        pwVar3 = L"SetLedRgbTab Err";
+      }
+    }
+  }
+  (*(code *)PTR_FUN_1001d040)(pwVar3);
+LAB_100016b1:
+  @__security_check_cookie@4(uStack_c ^ (uint)&stack0xfffffdd0);
+  return;
+}
+
+
+setLayerCount
+
+
+undefined4 __cdecl SetLayerCount(int param_1,int param_2)
+
+{
+                    /* 0x1580  17  SetLayerCount */
+  if (((param_1 != 0) && (*(int *)(param_1 + 4) == -0x7272a988)) && (param_2 - 1U < 8)) {
+    *(int *)(param_1 + 0x2c) = param_2;
+    return 1;
+  }
+  (*(code *)PTR_FUN_1001d040)(L"SetLayerCount Err: tDev=%x, nLayerNum=%d",param_1,param_2);
+  return 0;
+}
+
+setKeyColor
+
+
+void __cdecl SetKeyColor(int *param_1,int param_2,int param_3)
+
+{
+  undefined uVar1;
+  undefined uVar2;
+  int iVar3;
+  undefined4 *puVar4;
+  undefined4 *puVar5;
+  undefined auStack_394 [4];
+  undefined uStack_390;
+  undefined auStack_38f [2];
+  char cStack_38d;
+  undefined4 auStack_32c [3];
+  undefined uStack_320;
+  undefined auStack_31f [113];
+  undefined4 auStack_2ae [31];
+  undefined4 auStack_230 [33];
+  undefined4 auStack_1ac [3];
+  undefined auStack_1a0 [116];
+  undefined4 auStack_12c [3];
+  undefined auStack_120 [116];
+  undefined4 auStack_ac [3];
+  undefined auStack_a0 [108];
+  uint uStack_34;
+  uint uStack_28;
+  uint uStack_1c;
+  uint uStack_14;
+  uint local_c;
+  
+                    /* 0x1c60  15  SetKeyColor */
+  local_c = DAT_1001c058 ^ (uint)auStack_394;
+  if ((param_1 == (int *)0x0) || (param_1[1] != -0x7272a988)) {
+    (*(code *)PTR_FUN_1001d040)();
+    @__security_check_cookie@4(local_c ^ (uint)auStack_394);
+    return;
+  }
+  (*(code *)PTR_FUN_1001d040)();
+  if ((5 < param_2) || (param_3 == 0)) {
+    (*(code *)PTR_FUN_1001d040)();
+    @__security_check_cookie@4(local_c ^ (uint)auStack_394);
+    return;
+  }
+  uStack_390 = 0;
+  _memset(auStack_38f,0,0x7f);
+  Sleep(0x1e);
+  iVar3 = (**(code **)(*param_1 + 0x30))();
+  if (iVar3 == 0) {
+    (*(code *)PTR_FUN_1001d040)();
+    @__security_check_cookie@4(uStack_14 ^ (uint)&stack0xfffffc64);
+    return;
+  }
+  if (DAT_1001f24c != 0) {
+    FUN_10003310((int)&stack0xfffffc68,0x80,10,0x10018fc0);
+  }
+  cStack_38d = (char)param_2 + ' ';
+  auStack_38f[0] = 1;
+  if (DAT_1001f24c != 0) {
+    FUN_10003310((int)&stack0xfffffc68,0x80,10,0x10018fd8);
+  }
+  Sleep(0x1e);
+  iVar3 = (**(code **)(*param_1 + 0x2c))();
+  if (iVar3 == 0) {
+    (*(code *)PTR_FUN_1001d040)();
+    @__security_check_cookie@4(uStack_1c ^ (uint)&stack0xfffffc5c);
+    return;
+  }
+  auStack_1a0[0] = 0;
+  _memset(auStack_1a0 + 1,0,0x7d);
+  auStack_120[0] = 0;
+  _memset(auStack_120 + 1,0,0x7d);
+  auStack_a0[0] = 0;
+  _memset(auStack_a0 + 1,0,0x7d);
+  iVar3 = 0;
+  do {
+    uVar1 = *(undefined *)(param_3 + 1 + iVar3 * 4);
+    auStack_1a0[iVar3] = *(undefined *)(param_3 + iVar3 * 4);
+    uVar2 = *(undefined *)(param_3 + 2 + iVar3 * 4);
+    auStack_120[iVar3] = uVar1;
+    auStack_a0[iVar3] = uVar2;
+    iVar3 = iVar3 + 1;
+  } while (iVar3 < 0x7e);
+  Sleep(0x1e);
+  uStack_320 = 0;
+  _memset(auStack_31f,0,0x179);
+  iVar3 = (**(code **)(*param_1 + 0x38))();
+  if (iVar3 == 0) {
+    (*(code *)PTR_FUN_1001d040)(L"SetKeyColor: GetGame failed");
+    @__security_check_cookie@4(uStack_28 ^ (uint)&stack0xfffffc50);
+    return;
+  }
+  if (DAT_1001f24c != 0) {
+    (*(code *)PTR_FUN_1001d040)(L"LedMatrix (Load):");
+    FUN_10003310((int)auStack_32c,0x7e,0x7f,0x10019308);
+    FUN_10003310((int)auStack_2ae,0x7e,0x7f,0x10019310);
+    FUN_10003310((int)auStack_230,0x7e,0x7f,0x10019318);
+  }
+  puVar4 = auStack_ac;
+  puVar5 = auStack_32c;
+  for (iVar3 = 0x1f; iVar3 != 0; iVar3 = iVar3 + -1) {
+    *puVar5 = *puVar4;
+    puVar4 = puVar4 + 1;
+    puVar5 = puVar5 + 1;
+  }
+  *(undefined2 *)puVar5 = *(undefined2 *)puVar4;
+  puVar4 = auStack_12c;
+  puVar5 = auStack_2ae;
+  for (iVar3 = 0x1f; iVar3 != 0; iVar3 = iVar3 + -1) {
+    *puVar5 = *puVar4;
+    puVar4 = puVar4 + 1;
+    puVar5 = puVar5 + 1;
+  }
+  *(undefined2 *)puVar5 = *(undefined2 *)puVar4;
+  puVar4 = auStack_1ac;
+  puVar5 = auStack_230;
+  for (iVar3 = 0x1f; iVar3 != 0; iVar3 = iVar3 + -1) {
+    *puVar5 = *puVar4;
+    puVar4 = puVar4 + 1;
+    puVar5 = puVar5 + 1;
+  }
+  *(undefined2 *)puVar5 = *(undefined2 *)puVar4;
+  if (DAT_1001f24c != 0) {
+    (*(code *)PTR_FUN_1001d040)(L"LedMatrix (Save):");
+    FUN_10003310((int)auStack_32c,0x7e,0x7f,0x10019308);
+    FUN_10003310((int)auStack_2ae,0x7e,0x7f,0x10019310);
+    FUN_10003310((int)auStack_230,0x7e,0x7f,0x10019318);
+  }
+  Sleep(0x1e);
+  iVar3 = (**(code **)(*param_1 + 0x34))(param_2,auStack_32c,0x17a);
+  if (iVar3 == 0) {
+    (*(code *)PTR_FUN_1001d040)(L"SetKeyColor: SetGame failed");
+    @__security_check_cookie@4(uStack_34 ^ (uint)&stack0xfffffc44);
+    return;
+  }
+  @__security_check_cookie@4(uStack_34 ^ (uint)&stack0xfffffc44);
+  return;
+}
+
+setKey
+
+
+void __cdecl SetKey(int *param_1,wchar_t *param_2,int param_3,uint *param_4,int param_5)
+
+{
+  byte bVar1;
+  uint uVar2;
+  undefined uVar3;
+  int iVar4;
+  uint uVar5;
+  char cVar6;
+  int *unaff_EDI;
+  uint uVar7;
+  wchar_t *pwStack_228;
+  int *local_208 [3];
+  undefined local_1fc;
+  undefined local_1fb [471];
+  uint uStack_24;
+  undefined4 uStack_8;
+  uint local_4;
+  
+                    /* 0x2250  14  SetKey */
+  local_4 = DAT_1001c058 ^ (uint)local_208;
+  local_208[0] = param_1;
+  if ((param_1 == (int *)0x0) || (param_1[1] != -0x7272a988)) {
+    (*(code *)PTR_FUN_1001d040)();
+    @__security_check_cookie@4(local_4 ^ (uint)local_208);
+    return;
+  }
+  if ((((param_4 != (uint *)0x0) && (param_5 == 0x1f8)) && (param_3 < param_1[0xb])) &&
+     (param_2 < (wchar_t *)0x4)) {
+    Sleep(0x14);
+    local_1fc = 0;
+    pwStack_228 = L"貋Ⱔ\x02謀謓⁒쒃栌Ǹ";
+    _memset(local_1fb,0,0x1f7);
+    pwStack_228 = param_2;
+    iVar4 = (**(code **)(*param_1 + 0x20))();
+    if (iVar4 == 0) {
+      (*(code *)PTR_FUN_1001d040)(L"SetKey: GetMatrix Err");
+    }
+    (*(code *)PTR_FUN_1001d040)(L"Matrix(Load, Layer=%d, nProIndex=%d):",param_3,uStack_8);
+    FUN_10002230();
+    Sleep(0x1e);
+    uVar7 = 0;
+    do {
+      uVar2 = *param_4;
+      if (uVar2 != 0) {
+        cVar6 = (char)uVar2;
+        uVar5 = 0;
+        if (cVar6 == '\x01') {
+          switch(*(undefined *)((int)param_4 + 2)) {
+          case 0x21:
+            uVar5 = 0x83010002;
+            break;
+          case 0x22:
+            uVar5 = 0xcd000002;
+            break;
+          case 0x23:
+            uVar5 = 0xb7000002;
+            break;
+          case 0x24:
+            uVar5 = 0xb6000002;
+            break;
+          case 0x25:
+            uVar5 = 0xb5000002;
+            break;
+          case 0x26:
+            uVar5 = 0xe9000002;
+            break;
+          case 0x27:
+            uVar5 = 0xea000002;
+            break;
+          case 0x28:
+            uVar5 = 0xe2000002;
+            break;
+          case 0x30:
+            uVar5 = 0x8a010002;
+            break;
+          case 0x31:
+            uVar5 = 0x92010002;
+            break;
+          case 0x32:
+            uVar5 = 0x94010002;
+            break;
+          case 0x33:
+            uVar5 = 0x21020002;
+            break;
+          case 0x34:
+            uVar5 = 0x23020002;
+            break;
+          case 0x35:
+            uVar5 = 0x24020002;
+            break;
+          case 0x36:
+            uVar5 = 0x25020002;
+            break;
+          case 0x37:
+            uVar5 = 0x26020002;
+            break;
+          case 0x38:
+            uVar5 = 0x27020002;
+            break;
+          case 0x39:
+            uVar5 = 0x2a020002;
+          }
+        }
+        else if (cVar6 == '\0') {
+          bVar1 = *(byte *)((int)param_4 + 3);
+          if (bVar1 == 0xfa) {
+            uVar5 = 0xd;
+          }
+          else if (bVar1 == 0xfb) {
+            uVar5 = 0x10d;
+          }
+          else {
+            if (bVar1 != 0) {
+              uVar3 = FUN_10001000((uint)bVar1);
+              *(undefined *)((int)param_4 + 3) = uVar3;
+            }
+            uVar5 = *param_4;
+          }
+        }
+        else if (cVar6 == '\x02') {
+          uVar5 = (uint)CONCAT21(CONCAT11(*(undefined *)((int)param_4 + 1),
+                                          *(undefined *)((int)param_4 + 3)),
+                                 *(undefined *)((int)param_4 + 2)) << 8 | 3;
+        }
+        else if (cVar6 == '\x03') {
+          uVar5 = (uint)(byte)local_1fb[*(byte *)((int)param_4 + 1) - 0x19] << 8 | 0x10001;
+        }
+        else if (*(char *)((int)param_4 + 3) == '\a') {
+          uVar5 = uVar2;
+        }
+        *(uint *)(local_1fb + uVar7 * 4 + -0x11) = uVar5;
+      }
+      uVar7 = uVar7 + 1;
+      param_4 = param_4 + 1;
+    } while (uVar7 < 0x7e);
+    (*(code *)PTR_FUN_1001d040)(L"Matrix(Save, Layer=%d, nProIndex=%d):",param_3,uStack_8);
+    FUN_10002230();
+    (**(code **)(*unaff_EDI + 0x1c))(uStack_8,param_3,&stack0xfffffdf4,0x1f8);
+    @__security_check_cookie@4(uStack_24 ^ (uint)&pwStack_228);
+    return;
+  }
+  pwStack_228 = L"SetKey: wrong param, pBuffer=%x, bytesToWrite=%d, nLayer=%d, nProIndex=%d";
+  (*(code *)PTR_FUN_1001d040)();
+  @__security_check_cookie@4(local_4 ^ (uint)local_208);
+  return;
+}
+
+setDebug
+
+
+void __cdecl SetDebug(int param_1)
+
+{
+                    /* 0x1290  13  SetDebug */
+  if (param_1 == 8) {
+    DAT_1001f24c = 2;
+    FUN_100031b0();
+    return;
+  }
+  if (param_1 == 7) {
+    DAT_1001f24c = 1;
+    FUN_100031b0();
+    return;
+  }
+  return;
+}
+
+FUN_100031b0
+
+
+void FUN_100031b0(void)
+
+{
+  errno_t eVar1;
+  long lVar2;
+  FILE *pFStack_220;
+  _SYSTEMTIME _Stack_21c;
+  WCHAR local_20c [260];
+  uint local_4;
+  
+  local_4 = DAT_1001c058 ^ (uint)&pFStack_220;
+  SHGetSpecialFolderPathW((HWND)0x0,local_20c,0,0);
+  __snwprintf_s((wchar_t *)&DAT_1001dea8,0x104,0x103,L"%s\\BYLog.txt",local_20c);
+  PTR_FUN_1001d040 = FUN_10003070;
+  if (DAT_1001f24c == 2) {
+    pFStack_220 = (FILE *)0x0;
+    eVar1 = __wfopen_s(&pFStack_220,(wchar_t *)&DAT_1001dea8,L"w");
+    if (eVar1 == 0) {
+      _fseek(pFStack_220,0,2);
+      lVar2 = _ftell(pFStack_220);
+      _fseek(pFStack_220,0,0);
+      if (0x7d000 < lVar2) {
+        _fclose(pFStack_220);
+        __wfopen_s(&pFStack_220,(wchar_t *)&DAT_1001dea8,L"w");
+      }
+      _fclose(pFStack_220);
+      PTR_FUN_1001d040 = FUN_10003100;
+    }
+    else {
+      FUN_10003070(L"Open Log failed");
+    }
+  }
+  else if (DAT_1001f24c == 1) {
+    PTR_FUN_1001d040 = FUN_10003070;
+  }
+  GetLocalTime(&_Stack_21c);
+  (*(code *)PTR_FUN_1001d040)
+            (L"InitDebug  %04u-%02u-%02u %02u:%02u",_Stack_21c.wYear,_Stack_21c.wMonth,
+             _Stack_21c.wDay,_Stack_21c.wHour,_Stack_21c.wMinute);
+  @__security_check_cookie@4(local_4 ^ (uint)&pFStack_220);
+  return;
+}
+
+
+setKey
+
+
+void __cdecl SetKey(int *param_1,wchar_t *param_2,int param_3,uint *param_4,int param_5)
+
+{
+  byte bVar1;
+  uint uVar2;
+  undefined uVar3;
+  int iVar4;
+  uint uVar5;
+  char cVar6;
+  int *unaff_EDI;
+  uint uVar7;
+  wchar_t *pwStack_228;
+  int *local_208 [3];
+  undefined local_1fc;
+  undefined local_1fb [471];
+  uint uStack_24;
+  undefined4 uStack_8;
+  uint local_4;
+  
+                    /* 0x2250  14  SetKey */
+  local_4 = DAT_1001c058 ^ (uint)local_208;
+  local_208[0] = param_1;
+  if ((param_1 == (int *)0x0) || (param_1[1] != -0x7272a988)) {
+    (*(code *)PTR_FUN_1001d040)();
+    @__security_check_cookie@4(local_4 ^ (uint)local_208);
+    return;
+  }
+  if ((((param_4 != (uint *)0x0) && (param_5 == 0x1f8)) && (param_3 < param_1[0xb])) &&
+     (param_2 < (wchar_t *)0x4)) {
+    Sleep(0x14);
+    local_1fc = 0;
+    pwStack_228 = L"貋Ⱔ\x02謀謓⁒쒃栌Ǹ";
+    _memset(local_1fb,0,0x1f7);
+    pwStack_228 = param_2;
+    iVar4 = (**(code **)(*param_1 + 0x20))();
+    if (iVar4 == 0) {
+      (*(code *)PTR_FUN_1001d040)(L"SetKey: GetMatrix Err");
+    }
+    (*(code *)PTR_FUN_1001d040)(L"Matrix(Load, Layer=%d, nProIndex=%d):",param_3,uStack_8);
+    FUN_10002230();
+    Sleep(0x1e);
+    uVar7 = 0;
+    do {
+      uVar2 = *param_4;
+      if (uVar2 != 0) {
+        cVar6 = (char)uVar2;
+        uVar5 = 0;
+        if (cVar6 == '\x01') {
+          switch(*(undefined *)((int)param_4 + 2)) {
+          case 0x21:
+            uVar5 = 0x83010002;
+            break;
+          case 0x22:
+            uVar5 = 0xcd000002;
+            break;
+          case 0x23:
+            uVar5 = 0xb7000002;
+            break;
+          case 0x24:
+            uVar5 = 0xb6000002;
+            break;
+          case 0x25:
+            uVar5 = 0xb5000002;
+            break;
+          case 0x26:
+            uVar5 = 0xe9000002;
+            break;
+          case 0x27:
+            uVar5 = 0xea000002;
+            break;
+          case 0x28:
+            uVar5 = 0xe2000002;
+            break;
+          case 0x30:
+            uVar5 = 0x8a010002;
+            break;
+          case 0x31:
+            uVar5 = 0x92010002;
+            break;
+          case 0x32:
+            uVar5 = 0x94010002;
+            break;
+          case 0x33:
+            uVar5 = 0x21020002;
+            break;
+          case 0x34:
+            uVar5 = 0x23020002;
+            break;
+          case 0x35:
+            uVar5 = 0x24020002;
+            break;
+          case 0x36:
+            uVar5 = 0x25020002;
+            break;
+          case 0x37:
+            uVar5 = 0x26020002;
+            break;
+          case 0x38:
+            uVar5 = 0x27020002;
+            break;
+          case 0x39:
+            uVar5 = 0x2a020002;
+          }
+        }
+        else if (cVar6 == '\0') {
+          bVar1 = *(byte *)((int)param_4 + 3);
+          if (bVar1 == 0xfa) {
+            uVar5 = 0xd;
+          }
+          else if (bVar1 == 0xfb) {
+            uVar5 = 0x10d;
+          }
+          else {
+            if (bVar1 != 0) {
+              uVar3 = FUN_10001000((uint)bVar1);
+              *(undefined *)((int)param_4 + 3) = uVar3;
+            }
+            uVar5 = *param_4;
+          }
+        }
+        else if (cVar6 == '\x02') {
+          uVar5 = (uint)CONCAT21(CONCAT11(*(undefined *)((int)param_4 + 1),
+                                          *(undefined *)((int)param_4 + 3)),
+                                 *(undefined *)((int)param_4 + 2)) << 8 | 3;
+        }
+        else if (cVar6 == '\x03') {
+          uVar5 = (uint)(byte)local_1fb[*(byte *)((int)param_4 + 1) - 0x19] << 8 | 0x10001;
+        }
+        else if (*(char *)((int)param_4 + 3) == '\a') {
+          uVar5 = uVar2;
+        }
+        *(uint *)(local_1fb + uVar7 * 4 + -0x11) = uVar5;
+      }
+      uVar7 = uVar7 + 1;
+      param_4 = param_4 + 1;
+    } while (uVar7 < 0x7e);
+    (*(code *)PTR_FUN_1001d040)(L"Matrix(Save, Layer=%d, nProIndex=%d):",param_3,uStack_8);
+    FUN_10002230();
+    (**(code **)(*unaff_EDI + 0x1c))(uStack_8,param_3,&stack0xfffffdf4,0x1f8);
+    @__security_check_cookie@4(uStack_24 ^ (uint)&pwStack_228);
+    return;
+  }
+  pwStack_228 = L"SetKey: wrong param, pBuffer=%x, bytesToWrite=%d, nLayer=%d, nProIndex=%d";
+  (*(code *)PTR_FUN_1001d040)();
+  @__security_check_cookie@4(local_4 ^ (uint)local_208);
+  return;
+}
+
+ReadLED
+
+
+void __cdecl ReadLED(int *param_1,uint *param_2)
+
+{
+  byte bVar1;
+  int iVar2;
+  uint uVar3;
+  uint uVar4;
+  wchar_t *pwVar5;
+  undefined uStack_228;
+  char cStack_227;
+  byte bStack_226;
+  byte bStack_225;
+  byte bStack_21a;
+  byte bStack_219;
+  byte abStack_1f8 [72];
+  undefined auStack_1b0 [420];
+  uint uStack_c;
+  uint local_4;
+  
+                    /* 0x18e0  11  ReadLED */
+  local_4 = DAT_1001c058 ^ (uint)&uStack_228;
+  if ((param_1 == (int *)0x0) || (param_1[1] != -0x7272a988)) {
+    (*(code *)PTR_FUN_1001d040)(L"ReadLED Err: tDev=%x",param_1);
+    @__security_check_cookie@4(local_4 ^ (uint)&uStack_228);
+    return;
+  }
+  if (param_2 == (uint *)0x0) {
+    (*(code *)PTR_FUN_1001d040)(L"ReadLED Err: pData=%x",0);
+    @__security_check_cookie@4(local_4 ^ (uint)&uStack_228);
+    return;
+  }
+  (*(code *)PTR_FUN_1001d040)(L"ReadLED Start");
+  uStack_228 = 0;
+  _memset(&cStack_227,0,0x7f);
+  Sleep(0x1e);
+  iVar2 = (**(code **)(*param_1 + 0x30))(&uStack_228,0x80);
+  if (iVar2 == 0) {
+    pwVar5 = L"GetLED Err";
+LAB_1000198d:
+    (*(code *)PTR_FUN_1001d040)(pwVar5);
+    @__security_check_cookie@4(uStack_c ^ (uint)&stack0xfffffdd0);
+    return;
+  }
+  uVar3 = (uint)bStack_226;
+  param_2[1] = (uint)abStack_1f8[uVar3 * 2];
+  bVar1 = abStack_1f8[uVar3 * 2 + 1];
+  param_2[2] = (uint)(bVar1 >> 4);
+  param_2[7] = (uint)bStack_21a;
+  uVar4 = (uint)((bVar1 & 0xf) == 7);
+  param_2[8] = (uint)bStack_219;
+  *param_2 = uVar3;
+  param_2[3] = uVar4;
+  param_2[5] = (uint)(cStack_227 != '\0');
+  if ((cStack_227 != '\0') != 0) {
+    param_2[6] = bStack_225 - 0x20;
+  }
+  if ((uVar3 != 0) && (uVar4 == 0)) {
+    Sleep(0x32);
+    auStack_1b0[0] = 0;
+    _memset(auStack_1b0 + 1,0,0x1a3);
+    iVar2 = (**(code **)(*param_1 + 0x40))(auStack_1b0,0x1a4);
+    if (iVar2 == 0) {
+      pwVar5 = L"GetLedRgbTab Err";
+      goto LAB_1000198d;
+    }
+    iVar2 = *param_2 * 0x15;
+    param_2[4] = (uint)CONCAT21(CONCAT11(auStack_1b0[iVar2 + 2],auStack_1b0[iVar2 + 1]),
+                                auStack_1b0[iVar2]);
+  }
+  @__security_check_cookie@4(uStack_c ^ (uint)&stack0xfffffdd0);
+  return;
+}
+
+_memset(&local_20c, 0, 0x208);        // 520-byte buffer
+local_20c = 6;                       // Byte 0: Report ID = 0x06
+local_20b = param_2;                 // Byte 1: Opcode (4 for Settings, 10 for RGB Palette!)
+local_20a = (byte)param_3;           // Byte 2: Sub-command (0)
+local_209 = 0;                       // Byte 3: Reserved (0)
+local_208 = (undefined)local_210;    // Byte 4: Total Chunks (1)
+local_207 = (undefined)local_218;    // Byte 5: Current Chunk Index (0)
+local_206 = (undefined)_Size;        // Byte 6: Payload Size Low Byte
+local_205 = (undefined)(_Size >> 8); // Byte 7: Payload Size High Byte
+_memcpy(local_204, ..., _Size);       // Byte 8..8+Size: The Payload Data!
+
+

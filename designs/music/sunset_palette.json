@@ -1,0 +1,4 @@
+{
+  "stops": ["FF0040", "FF8000", "FFD000"],
+  "mode": "column"
+}

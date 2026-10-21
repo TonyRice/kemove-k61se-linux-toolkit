@@ -1,0 +1,9 @@
+{
+  "name": "effect solid",
+  "effect": 1,
+  "brightness": 5,
+  "speed": 5,
+  "rainbow": true,
+  "colour": null,
+  "notes": "effect 0x01, brightness 5, speed 5, rainbow on (the form the sweep captured); leaves the colour block alone"
+}

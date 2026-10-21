@@ -1,0 +1,9 @@
+{
+  "name": "effect rainbow snake",
+  "effect": 10,
+  "brightness": 5,
+  "speed": 5,
+  "rainbow": true,
+  "colour": null,
+  "notes": "effect 0x0A, brightness 5, speed 5, rainbow on (the form the sweep captured); leaves the colour block alone"
+}

@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.venv/
+venv/
+
+# Local runtime state and logs
+.k61se_state.json
+*.log
+
+# Large local evidence; keep the small canonical fixtures below.
+dumps/
+captures/*
+!captures/SESSION_INDEX.md
+!captures/keymap-reset.bin
+!captures/keymap-stock.bin
+!captures/golden-reset/
+!captures/golden-reset/**
+
+# Vendor application binaries; the keyboard XML is kept.
+app/*.exe
+app/*.dll
+app/language/
+app/skins/
+app/layouts/*
+!app/layouts/K61SE-keyboard.xml
+vendor/
+
+# Desktop junk
+.DS_Store
