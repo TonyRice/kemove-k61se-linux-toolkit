@@ -101,11 +101,15 @@ with `sudo python3 -B k61se_arrows.py`.
   app readback and is kept for comparison.
 - `captures/golden-reset/` — verified Fn+Tab reset snapshot used by
   `k61se_snapshot.py --restore`.
-- `captures/reset-*` — before/after snapshot evidence (`snapshot.json` plus raw
-  block bodies) captured by `k61se_snapshot.py`.
 - `designs/` — static key art and music-design JSON.
 - `presets/` — saved lighting/colour block presets.
 - `.k61se_state.json` — last drawable mode used by `k61se_power.py`.
+
+The public repository tracks the source, docs, `app/K61SE-keyboard.xml`, and the
+two small reset fixtures above. The vendor app binaries, the full `captures/`
+archive, `dumps/`, and `.k61se_state.json` stay local and are Git-ignored. A
+fresh clone still runs the runtime tools; only the Wine/vendor-app workflows
+and the full raw evidence archive need the local files.
 
 ## Reference and evidence
 
@@ -116,15 +120,19 @@ These are useful for protocol work but not required to run the daily tools:
   and effect analysis.
 - `KBAccess_notes.txt` — original vendor-access notes.
 - `WINE.md` — running the Windows vendor app under Wine.
-- `captures/` — raw USB captures, indexed by `captures/SESSION_INDEX.md`.
-- `dumps/` — 128-byte lighting and 420-byte colour block snapshots.
+- `captures/` — local raw USB captures, indexed by `captures/SESSION_INDEX.md`.
+  Only `golden-reset/`, `keymap-reset.bin`, `keymap-stock.bin`, and the index
+  are tracked.
+- `dumps/` — local 128-byte lighting and 420-byte colour block snapshots; not
+  tracked.
 - `dump_lighting.py`, `review_captures.py`, `review_dumps.py`, `sniffer.py`,
   `snoop_session.py`, `read_desc.py`, `payloads.py` — read-only research tools.
 - `k61se_music_audio.sh` — PipeWire loopback for the vendor app's music mode.
 
-`app/` also contains the extracted vendor app (`.exe`, DLLs, skins, layouts,
-language files). The Linux tools only need `app/K61SE-keyboard.xml`; keep the
-rest only if you still want to run the app under Wine.
+On this machine `app/` also contains the extracted vendor app (`.exe`, DLLs,
+skins, layouts, language files), but those binaries are Git-ignored. The Linux
+tools only need `app/K61SE-keyboard.xml`; keep the rest locally if you still
+want to run the app under Wine.
 
 `attic/` contains old one-off HID probes from the first reverse-engineering
 sessions. They are not imported by the current tools and are safe to delete.

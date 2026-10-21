@@ -11,6 +11,10 @@ marked **guess / unknown**. The byte dumps are authoritative; decodes are not.
 - Panic button if a bad state is ever written: hold **Fn + Tab for 5 s**
   (factory reset).
 
+Repository note: the public Git repository tracks the source, docs, the vendor
+keyboard XML, and the small canonical reset fixtures. The full `captures/`
+archive, `dumps/`, and vendor app binaries are local evidence and are ignored.
+
 ---
 
 ## 1. Frame format
