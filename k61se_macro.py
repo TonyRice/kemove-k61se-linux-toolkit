@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only keymap and macro inspector for the KEMOVE K61SE.
+"""Read-only keymap and macro inspector for KEMOVE keyboards.
 
 This is deliberately a **read-only** tool.  The keymap write/read pair is now
 hardware-confirmed and lives in ``k61se_keymap.py``.  One F75-style macro payload
@@ -51,6 +51,8 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import k61se_dev as dev
+from kemove.devices import profile_for_key
+from kemove.discovery import find as find_device
 
 KEYMAP_OP = 0x03
 MACRO_OP = 0x05
@@ -516,6 +518,25 @@ def _parse_layers(text):
     return layers or [0, 1]
 
 
+def select_profile(args, parser):
+    """Resolve --profile, or auto-detect a single connected keyboard."""
+    if args.profile:
+        profile = profile_for_key(args.profile)
+        if profile is None:
+            parser.error(f"unknown device profile {args.profile!r}")
+        return profile
+    try:
+        return find_device().profile
+    except RuntimeError:
+        return profile_for_key("k61se")
+
+
+def layout_for(args, profile):
+    if args.layout:
+        return Path(args.layout)
+    return profile.layout_path() or XML_PATH
+
+
 def _save(save_dir: str, name: str, data: bytes):
     directory = Path(save_dir)
     directory.mkdir(parents=True, exist_ok=True)
@@ -545,7 +566,7 @@ def echo_test(args):
         (KEYMAP_OP, KEYMAP_SIZE, 0, "keymap"),
         (MACRO_OP, min(args.macro_size, dev.REPORT_LEN - 8), 0, "macro"),
     ]
-    handle = dev.open_device()
+    handle = dev.open_device(getattr(args, "profile_obj", None))
     try:
         for opcode, size, sub, label in tests:
             try:
@@ -589,7 +610,7 @@ def echo_test(args):
 
 
 def probe(args):
-    keys = load_xml_keys()
+    keys = load_xml_keys(args.layout_path)
     others = dev.other_writers()
     if others:
         print("[!] Another process has the K61SE open.  Reads may be consumed; "
@@ -601,7 +622,7 @@ def probe(args):
     result = {"read_at": time.strftime("%Y-%m-%d %H:%M:%S"), "layers": {},
               "macros": {}, "info": None}
 
-    handle = dev.open_device()
+    handle = dev.open_device(getattr(args, "profile_obj", None))
     try:
         try:
             info = _read(handle, INFO_OP, 6, 1)
@@ -711,6 +732,10 @@ def main(argv=None):
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__.split("Examples", 1)[1] if "Examples" in __doc__ else None,
     )
+    parser.add_argument("--profile", metavar="KEY",
+                        help="device profile key (default: auto-detect; e.g. k61se, k87-1980)")
+    parser.add_argument("--layout", metavar="FILE",
+                        help="override the layout XML from the profile")
     parser.add_argument("--probe", action="store_true",
                         help="read keymaps and the macro area from the keyboard")
     parser.add_argument("--echo-test", action="store_true",
@@ -734,9 +759,13 @@ def main(argv=None):
                         help="layer label for --decode-keymap (default 0)")
     args = parser.parse_args(argv)
 
+    profile = select_profile(args, parser)
+    args.profile_obj = profile
+    args.layout_path = layout_for(args, profile)
+
     if args.decode_keymap:
         body = _read_file(args.decode_keymap)
-        print_keymap(body, load_xml_keys(), args.layer, full=args.full)
+        print_keymap(body, load_xml_keys(args.layout_path), args.layer, full=args.full)
         return 0
     if args.decode_macros:
         print_macros(_read_file(args.decode_macros))

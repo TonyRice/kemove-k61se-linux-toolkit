@@ -175,6 +175,17 @@ python3 -m kemove.probe --json
 python3 -m kemove.probe --all
 ```
 
+The keymap and macro tools now auto-detect one connected keyboard, and accept
+an explicit profile when more than one is attached:
+
+```bash
+python3 k61se_keymap.py --read
+python3 k61se_keymap.py --profile k87-1980 --read
+python3 k61se_macro.py --probe --profile k87-1980
+python3 k61se_keymap.py --profile k87-1980 \
+  --base-file captures/k87-probe/keymap.bin --set A=B --dry-run
+```
+
 To verify the wired protocol and measure the blocks:
 
 ```bash
@@ -205,18 +216,22 @@ The new `kemove/` package is the start of the model-aware layer:
 - `tests/test_devices.py` and `tests/test_k87_blocks.py` verify profile and
   block behaviour without hardware.
 
-The existing `k61se_*.py` tools are still the verified K61SE implementation.
-They should be migrated onto the profile registry rather than copied for every
-new model. The next refactor should move the transport and block codecs behind
-the profile object, then make the CLI wrappers accept `--profile`/auto-detect.
+`k61se_keymap.py` and `k61se_macro.py` are now profile-aware: they auto-detect
+a single connected keyboard, accept `--profile k61se|k87-1980`, and load the
+profile's layout XML. K87 writes are gated behind `--force` until hardware
+round-trip tests are complete; dry-run keymap edits are allowed.
+
+The lighting/colour/power tools still use the K61SE code path. They should be
+moved onto the profile object next, with a K87 `palette7` colour path and the
+same pre-write/readback guards.
 
 ## Next checks
 
 1. ~~Read the K87 keymap and confirm the 504-byte block.~~ Done on 2026-11-25.
 2. ~~Read the K87 lighting and colour blocks.~~ Done on 2026-11-25.
 3. ~~Add a K87 palette codec (`palette7`) and tests for round-tripping one record.~~ Done in `kemove/colours.py`.
-4. Make the keymap/lighting CLI profile-aware so it loads the K87 XML and
-   key-index map automatically.
+4. ~~Make the keymap/macro CLI profile-aware so it loads the K87 XML and
+   key-index map automatically.~~ Done; lighting CLI remains K61SE-only.
 5. Add a K87 keymap write test on a non-arrow key with pre-write readback and
    restore.
 6. Add a K87 lighting/colour read-modify-write test using the new palette codec.

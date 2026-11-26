@@ -274,16 +274,19 @@ def emergency_software_reset():
                 continue
 
 
-def get_device():
-    target_path = None
-    for d in hid.enumerate(VENDOR_ID, PRODUCT_ID):
-        if d.get("interface_number") == 1:
-            target_path = d["path"]
-            break
-    if not target_path:
-        raise RuntimeError("K61SE Interface 1 not detected.")
+def get_device(profile=None):
+    """Open a recognised keyboard interface.
+
+    ``profile`` may be a profile key, a ``DeviceProfile``, or ``None`` for the
+    verified K61SE default.  Product-string matching is required because K61SE,
+    K87-1980, K68SE, and K98-1980 share VID/PID 258A:010C.
+    """
+    from kemove.devices import profile_for_key
+    from kemove.discovery import find
+
+    match = find(profile or profile_for_key("k61se"))
     dev = hid.device()
-    dev.open_path(target_path)
+    dev.open_path(match.path)
     return dev
 
 

@@ -55,9 +55,14 @@ COLOUR_OFF = layout.COLOUR_CHANNEL_OFFS  # effect 1's (solid) record: G=0x15 R=0
 # --------------------------------------------------------------------------- #
 # device
 # --------------------------------------------------------------------------- #
-def open_device():
-    """Open management interface 1. Raises RuntimeError if it is not there."""
-    return get_device()
+def open_device(profile=None):
+    """Open a recognised management interface.
+
+    ``profile`` may be a profile key, a ``DeviceProfile``, or ``None`` for
+    the verified K61SE default.  Profile-aware callers pass the detected
+    profile explicitly.
+    """
+    return get_device(profile)
 
 
 def other_writers():
@@ -100,7 +105,7 @@ def _reply_body(raw, opcode):
     return None
 
 
-def read_raw(opcode, size, sub=0, dev=None, fill=0x00, attempts=3):
+def read_raw(opcode, size, sub=0, dev=None, fill=0x00, attempts=3, profile=None):
     """Send a read request and return the raw report-6 reply.
 
     This is a diagnostic for distinguishing a real zero-filled answer from a
@@ -115,7 +120,7 @@ def read_raw(opcode, size, sub=0, dev=None, fill=0x00, attempts=3):
     for attempt in range(attempts):
         handle = None
         try:
-            handle = dev if dev is not None else open_device()
+            handle = dev if dev is not None else open_device(profile)
             req = _frame(0x80 | opcode, size, sub)
             payload = req + bytes([fill & 0xFF]) * (REPORT_LEN - len(req))
             if handle.send_feature_report(payload) < 0:
@@ -147,7 +152,7 @@ def read_raw(opcode, size, sub=0, dev=None, fill=0x00, attempts=3):
     raise last_error
 
 
-def read_body(opcode, size, sub=0, dev=None, attempts=3):
+def read_body(opcode, size, sub=0, dev=None, attempts=3, profile=None):
     """Read a block and return just its body (no 8-byte frame header).
 
     Report 6 holds one report at a time, and a short/empty reply happens when
@@ -161,7 +166,7 @@ def read_body(opcode, size, sub=0, dev=None, attempts=3):
     for attempt in range(attempts):
         handle = None
         try:
-            handle = dev if dev is not None else open_device()
+            handle = dev if dev is not None else open_device(profile)
             req = _frame(0x80 | opcode, size, sub)
             if handle.send_feature_report(req + bytes(REPORT_LEN - len(req))) < 0:
                 raise OSError(
@@ -197,7 +202,7 @@ def read_body(opcode, size, sub=0, dev=None, attempts=3):
     raise last_error
 
 
-def read_body_chunks(opcode, size, sub=0, dev=None, attempts=3):
+def read_body_chunks(opcode, size, sub=0, dev=None, attempts=3, profile=None):
     """Read a block that spans several report-6 chunks.
 
     The frame's byte 4 is the total chunk count and byte 5 is the chunk index
@@ -219,7 +224,7 @@ def read_body_chunks(opcode, size, sub=0, dev=None, attempts=3):
         for attempt in range(attempts):
             handle = None
             try:
-                handle = dev if dev is not None else open_device()
+                handle = dev if dev is not None else open_device(profile)
                 req = _frame(0x80 | opcode, want, sub, total, index)
                 if handle.send_feature_report(req + bytes(REPORT_LEN - len(req))) < 0:
                     raise OSError(
@@ -261,10 +266,10 @@ def read_body_chunks(opcode, size, sub=0, dev=None, attempts=3):
     return out
 
 
-def write_body(opcode, body, sub=0, dev=None):
+def write_body(opcode, body, sub=0, dev=None, profile=None):
     """Write a block body (no frame header)."""
     own = dev is None
-    dev = dev or open_device()
+    dev = dev or open_device(profile)
     try:
         out = _frame(opcode, len(body), sub) + bytes(body)
         out += bytes(max(0, REPORT_LEN - len(out)))

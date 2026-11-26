@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Explicit K61SE keymap reader/writer.
+"""Explicit KEMOVE K61SE/K87 keymap reader/writer.
 
-This is separate from ``k61se_macro.py`` on purpose: the macro tool stays
-read-only, while this tool owns the one block that is confirmed on hardware.
+The macro tool stays read-only, while this tool owns the 504-byte keymap block.
+The K87-1980 uses the same block size and command as the K61SE; its key indices
+come from its own layout XML.
 
 The vendor app was captured on 2026-10-20 doing a read-modify-write cycle:
 
@@ -11,13 +12,14 @@ The vendor app was captured on 2026-10-20 doing a read-modify-write cycle:
     06 03 00 00 01 00 F8 01   write full 504-byte keymap
 
 The body is 126 four-byte actions.  The XML's ``key_index`` is the cell index
-directly, so ``offset = 4 * key_index``.  Cell 0 is reserved; cell 1 is the
-physical Esc.  (The old app readback had a duplicate Esc in slot 0; the Fn+Tab
-reset snapshot leaves it zero.)
+directly, so ``offset = 4 * key_index``.  K61SE reserves cell 0 and puts Esc in
+cell 1; K87 puts Esc in cell 0.  Always load the profile's layout instead of
+assuming K61SE indices.
 
 Examples (the dry-run examples do not open the keyboard):
 
     python3 k61se_keymap.py --read
+    python3 k61se_keymap.py --profile k87-1980 --read
     python3 k61se_keymap.py --list-keys
     python3 k61se_keymap.py --list-actions
     python3 k61se_keymap.py --restore-stock --dry-run
@@ -26,9 +28,10 @@ Examples (the dry-run examples do not open the keyboard):
     python3 k61se_keymap.py --set Alt@17="Left Alt" --yes
     python3 k61se_keymap.py --restore-stock --yes
 
-The last two commands write to the keyboard.  They always save a pre-write
-readback, send the full 504-byte block, read it back, and compare.  Close the
-vendor app first; it re-asserts its own map.
+K61SE writes always save a pre-write readback, send the full block, read it
+back, and compare.  K87 writes are disabled unless ``--force`` is supplied
+until the hardware round-trip checks are complete.  Close the vendor app first;
+it re-asserts its own map.
 """
 from __future__ import annotations
 
@@ -41,9 +44,16 @@ from pathlib import Path
 
 import k61se_dev as dev
 import k61se_macro as km
+from kemove.devices import profile_for_key
+from kemove.discovery import find as find_device
 
-DEFAULT_STOCK = Path(__file__).resolve().parent / "captures" / "keymap-reset.bin"
-DEFAULT_SAVE_DIR = Path(__file__).resolve().parent / "captures" / "keymap-write"
+ROOT = Path(__file__).resolve().parent
+DEFAULT_STOCK = ROOT / "captures" / "keymap-reset.bin"
+DEFAULT_SAVE_DIR = ROOT / "captures" / "keymap-write"
+DEFAULT_STOCKS = {
+    "k61se": DEFAULT_STOCK,
+    "k87-1980": ROOT / "captures" / "k87-probe" / "keymap.bin",
+}
 KEYMAP_OP = km.KEYMAP_OP
 KEYMAP_SIZE = km.KEYMAP_SIZE
 
@@ -339,8 +349,8 @@ def print_changes(changes):
         )
 
 
-def read_current() -> bytes:
-    body = bytes(dev.read_body(KEYMAP_OP, KEYMAP_SIZE, 0))
+def read_current(profile=None) -> bytes:
+    body = bytes(dev.read_body(KEYMAP_OP, KEYMAP_SIZE, 0, profile=profile))
     if len(body) != KEYMAP_SIZE:
         raise OSError(f"keymap read returned {len(body)} bytes, wanted {KEYMAP_SIZE}")
     return body
@@ -389,20 +399,20 @@ def list_actions():
     print("  raw:00 00 00 05")
 
 
-def read_command(args, keys):
+def read_command(args, keys, profile=None):
     if args.base_file:
         body = load_body_file(args.base_file)
         source = args.base_file
     else:
         warn_other_writers()
-        body = read_current()
+        body = read_current(profile)
         source = "device"
     print(f"Keymap source: {source}")
     km.print_keymap(body, keys, 0, full=args.full)
     return 0
 
 
-def choose_base(args, keys, pre):
+def choose_base(args, keys, pre, profile=None):
     if args.base_file:
         return load_body_file(args.base_file), f"file {args.base_file}"
 
@@ -411,7 +421,7 @@ def choose_base(args, keys, pre):
         return body, f"stock {args.stock_file}"
 
     if pre is None:
-        pre = read_current()
+        pre = read_current(profile)
 
     if args.base == "device":
         return pre, "device readback"
@@ -428,7 +438,7 @@ def choose_base(args, keys, pre):
     return body, f"stock {args.stock_file} (device readback was not a keymap)"
 
 
-def prepare_write(args, keys, parser):
+def prepare_write(args, keys, parser, profile=None):
     mode = "set" if args.set else "restore" if args.restore_stock else "write"
     pre = None
     baseline = None
@@ -440,7 +450,7 @@ def prepare_write(args, keys, parser):
         or (mode in ("set", "restore", "write") and not args.dry_run)
     )
     if needs_pre:
-        pre = read_current()
+        pre = read_current(profile)
 
     if mode == "restore":
         body = load_body_file(args.stock_file)
@@ -475,7 +485,7 @@ def prepare_write(args, keys, parser):
                 "body does not look like a keymap; pass --force to write it anyway"
             )
     else:
-        body, source = choose_base(args, keys, pre)
+        body, source = choose_base(args, keys, pre, profile)
         baseline = body
         baseline_label = f"base ({source})"
         report = km.keymap_report(body, keys)
@@ -547,16 +557,16 @@ def prepare_write(args, keys, parser):
     print(f"Saved body to write:      {write_path}")
 
     print(f"Writing 0x{KEYMAP_OP:02X}, {len(body)} bytes, sub=0 ...")
-    written = dev.write_body(KEYMAP_OP, body, sub=0)
+    written = dev.write_body(KEYMAP_OP, body, sub=0, profile=profile)
     print(f"Write accepted ({written} bytes transferred).")
     time.sleep(0.10)
 
-    post = read_current()
+    post = read_current(profile)
     for _ in range(2):
         if post == body:
             break
         time.sleep(0.10)
-        post = read_current()
+        post = read_current(profile)
     post_path = save_body(save_dir, f"post-{stamp}.bin", post)
     print(f"Saved post-write readback: {post_path}")
     diff = keymap_diff(body, post, keys)
@@ -588,13 +598,34 @@ def prepare_write(args, keys, parser):
 # --------------------------------------------------------------------------- #
 # CLI
 # --------------------------------------------------------------------------- #
+def select_profile(args, parser):
+    """Resolve --profile, or auto-detect a single connected keyboard."""
+    if args.profile:
+        profile = profile_for_key(args.profile)
+        if profile is None:
+            parser.error(f"unknown device profile {args.profile!r}")
+        return profile
+
+    try:
+        return find_device().profile
+    except RuntimeError as exc:
+        if args.base_file or args.list_keys or args.list_actions:
+            return profile_for_key("k61se")
+        parser.error(str(exc))
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(
-        description="Read or explicitly write the K61SE 504-byte keymap. "
-                    "Writes require --yes and always read back.",
+        description="Read or explicitly write the KEMOVE 504-byte keymap. "
+                    "Writes require --yes and always read back; K87 profiles "
+                    "also require --force until verified.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__.split("Examples", 1)[1] if "Examples" in __doc__ else None,
     )
+    parser.add_argument("--profile", metavar="KEY",
+                        help="device profile key (default: auto-detect; e.g. k61se, k87-1980)")
+    parser.add_argument("--layout", metavar="FILE",
+                        help="override the layout XML from the profile")
     parser.add_argument("--read", action="store_true",
                         help="read and decode the current keymap (read-only)")
     parser.add_argument("--restore-stock", action="store_true",
@@ -626,13 +657,20 @@ def main(argv=None):
                         help="list usable action names (no device)")
     args = parser.parse_args(argv)
 
-    keys = km.load_xml_keys()
+    if args.list_actions:
+        list_actions()
+        return 0
+
+    profile = select_profile(args, parser)
+    assert profile is not None
+    layout = Path(args.layout) if args.layout else profile.layout_path()
+    keys = km.load_xml_keys(layout or km.XML_PATH)
+
+    if args.stock_file == str(DEFAULT_STOCK):
+        args.stock_file = str(DEFAULT_STOCKS.get(profile.key, DEFAULT_STOCK))
 
     if args.list_keys:
         list_keys(keys)
-        return 0
-    if args.list_actions:
-        list_actions()
         return 0
 
     modes = [
@@ -647,13 +685,19 @@ def main(argv=None):
         parser.error("--base-file is only for --read and --set")
 
     if args.read:
-        return read_command(args, keys)
+        return read_command(args, keys, profile)
+
+    if not args.dry_run and not profile.verified and not args.force:
+        parser.error(
+            f"{profile.name} has a provisional device profile; writes are disabled. "
+            "Use --dry-run for now, or pass --force only after hardware verification."
+        )
 
     others = dev.other_writers()
     if others:
         print(
-            "[!] Another process has the K61SE open. Close the vendor app for a "
-            "clean write:",
+            f"[!] Another process has the {profile.name} open. Close the vendor app "
+            "for a clean write:",
             file=sys.stderr,
         )
         for pid, cmd in others:
@@ -661,7 +705,7 @@ def main(argv=None):
         if not args.dry_run and not args.force:
             parser.error("close the vendor app before writing (or pass --force)")
 
-    return prepare_write(args, keys, parser)[0]
+    return prepare_write(args, keys, parser, profile)[0]
 
 
 if __name__ == "__main__":

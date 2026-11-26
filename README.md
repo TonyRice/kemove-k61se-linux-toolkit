@@ -26,6 +26,19 @@ The probe is the safe first step for a new model: it reports the exact product
 string, VID/PID, interface, and usage page. Product-string matching matters
 because the K61SE, K87-1980, K68SE, and K98-1980 share `258A:010C`.
 
+`k61se_keymap.py` and `k61se_macro.py` auto-detect one connected keyboard and
+also accept `--profile`:
+
+```bash
+python3 k61se_keymap.py --read
+python3 k61se_keymap.py --profile k87-1980 --read
+python3 k61se_keymap.py --profile k87-1980 \
+  --base-file captures/k87-probe/keymap.bin --set A=B --dry-run
+```
+
+K87 writes are read-only/dry-run until the hardware round-trip checks are
+finished.
+
 ## Quick start
 
 ```bash
