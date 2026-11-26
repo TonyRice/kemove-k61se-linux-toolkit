@@ -52,7 +52,7 @@ DEFAULT_STOCK = ROOT / "evidence" / "captures" / "keymap-reset.bin"
 DEFAULT_SAVE_DIR = ROOT / "evidence" / "captures" / "keymap-write"
 DEFAULT_STOCKS = {
     "k61se": DEFAULT_STOCK,
-    "k87-1980": ROOT / "evidence" / "captures" / "k87-probe" / "keymap.bin",
+    "k87-1980": ROOT / "evidence" / "captures" / "k87-before" / "keymap-layer0.bin",
 }
 KEYMAP_OP = km.KEYMAP_OP
 KEYMAP_SIZE = km.KEYMAP_SIZE
