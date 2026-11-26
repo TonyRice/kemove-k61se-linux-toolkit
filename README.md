@@ -31,8 +31,10 @@ python3 -m kemove.lighting_cli set --profile k87-1980 --brightness 3 --yes --for
 python3 -m kemove.lighting_cli set --profile k87-1980 \
   --side-mode 2 --side-colour 1 --dry-run
 
-# Live speaker-driven visualiser on the K87
-python3 kemove_music_live.py --profile k87-1980 --seconds 10 --force
+# Live speaker-driven visualiser on the K87, with a solid side strip
+python3 kemove_music_live.py --profile k87-1980 \
+  --side-flag 1 --side-mode 3 --side-colour 2 \
+  --seconds 30 --force
 
 # The side strip is separate from the main real-time frame.
 # Set its hardware effect/colour before starting the music:

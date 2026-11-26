@@ -49,6 +49,7 @@ import numpy as np
 import k61se_dev as dev
 from kemove.devices import profile_for_key
 from kemove.discovery import find as find_device
+from kemove.lighting import edit_lighting
 
 RATE = 48000
 CHANNELS = 1
@@ -603,6 +604,12 @@ def main(argv=None):
                         help="allow a provisional profile to receive live frames")
     parser.add_argument("--side-test", action="store_true",
                         help="send a static side-strip test frame and restore")
+    parser.add_argument("--side-flag", type=int, choices=(0, 1),
+                        help="K87 side-light flag state")
+    parser.add_argument("--side-mode", type=int,
+                        help="K87 side-light mode (3 = solid on this board)")
+    parser.add_argument("--side-colour", type=int,
+                        help="K87 side-light colour index (0=red, 2=blue)")
     parser.add_argument("--device", help="source name or sink serial "
                         "(default: the default sink's monitor)")
     parser.add_argument("--seconds", type=float, default=30.0,
@@ -744,7 +751,11 @@ def main(argv=None):
             print(f"[!] {exc}", file=sys.stderr)
             return 1
         restore_body = None
-        if not opts.no_restore:
+        side_requested = any(
+            value is not None
+            for value in (opts.side_flag, opts.side_mode, opts.side_colour)
+        )
+        if not opts.no_restore or side_requested:
             try:
                 restore_body = dev.read_block("lighting", dev=handle)
             except OSError as exc:
@@ -752,6 +763,36 @@ def main(argv=None):
                       file=sys.stderr)
                 print("[!] Continuing; the configured effect will return when "
                       "the stream stops.", file=sys.stderr)
+        if side_requested:
+            if profile.key != "k87-1980":
+                print("[!] --side-* options are implemented for the K87-1980 only.",
+                      file=sys.stderr)
+                return 1
+            if restore_body is None:
+                print("[!] Could not read the lighting block for side-light setup.",
+                      file=sys.stderr)
+                return 1
+            try:
+                side_body = edit_lighting(
+                    restore_body,
+                    side_flag=opts.side_flag,
+                    side_mode=opts.side_mode,
+                    side_colour=opts.side_colour,
+                )
+                dev.write_block("lighting", side_body, dev=handle)
+                print("[+] Side-light state applied", file=sys.stderr)
+            except (OSError, ValueError) as exc:
+                print(f"[!] Side-light setup failed: {exc}", file=sys.stderr)
+                return 1
+            try:
+                handle.close()
+            except Exception:
+                pass
+            handle = reconnect_device(profile)
+            if handle is None:
+                print("[!] Could not reopen the keyboard after side-light setup.",
+                      file=sys.stderr)
+                return 1
     else:
         handle = None
         restore_body = None

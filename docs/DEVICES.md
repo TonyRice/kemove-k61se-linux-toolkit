@@ -168,10 +168,15 @@ flashing/flowing effect. The strip is a separate hardware zone controlled by
 the side-light fields in the lighting block. We can select its mode/colour,
 but we do not yet know a per-LED real-time path for it.
 
-Observed on hardware 2026-11-26: `side-flag=1`, `side-mode=3`,
-`side-colour=2` gives a **solid blue** side strip. The colour-index mapping
-still needs a sweep; the language order is not necessarily the wire order.
-K87 is provisional, so live writes require `--force`.
+Observed on hardware 2026-11-26: `side-flag=1`, `side-mode=3` gives a solid
+side strip. `side-colour=2` is blue and `side-colour=0` is red. The colour
+index appears to follow the board's RGB order (red, green, blue, yellow,
+magenta, cyan, white), but only 0 and 2 have been confirmed. K87 is
+provisional, so live writes require `--force`.
+
+`kemove_music_live.py --side-flag 1 --side-mode 3 --side-colour 2` applies the
+side state before streaming and restores the original lighting block at the
+end.
 
 ### Colour block: this is the real difference
 
