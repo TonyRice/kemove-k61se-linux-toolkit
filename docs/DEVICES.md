@@ -162,8 +162,9 @@ The live music tool now configures the matrix from the profile:
 - K87-1980: 18 columns × 6 rows, cell base 0
 
 Both stream the same 378-byte `0x08` real-time frame. The K87 side strip is
-not yet included in that frame; this first pass animates the main key matrix.
-K87 is provisional, so live writes require `--force`.
+not yet confirmed to be in that frame; `--side-test` paints cells 108..125 red
+and restores the lighting block, so we can see whether those spare cells drive
+the strip. K87 is provisional, so live writes require `--force`.
 
 ### Colour block: this is the real difference
 

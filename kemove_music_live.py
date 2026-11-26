@@ -548,6 +548,50 @@ def reconnect_device(profile=None):
     return None
 
 
+def side_test(profile, seconds=3.0, dry_run=False):
+    """Send a static side-strip test frame and restore the lighting block.
+
+    The K87 uses 18x6 = 108 key cells. The remaining 18 cells in the 126-cell
+    real-time frame are the first candidate for the side strip; this test
+    lights only cells 108..125.
+    """
+    cells = list(range(108, 126))
+    print(f"side-test cells: {cells[0]}..{cells[-1]} ({len(cells)} cells)")
+    if dry_run:
+        print("dry run: no device write")
+        return 0
+    check_writers()
+    try:
+        handle = dev.open_device(profile)
+    except RuntimeError as exc:
+        print(f"[!] {exc}", file=sys.stderr)
+        return 1
+    restore_body = None
+    try:
+        restore_body = dev.read_block("lighting", dev=handle)
+        body = bytearray(FRAME_BYTES)
+        for cell in cells:
+            put(body, cell, (255, 0, 0))
+        print(f"[*] sending side-test frame for {seconds:g}s ...", file=sys.stderr)
+        dev.write_body(MUSIC_OP, body, dev=handle)
+        time.sleep(max(0.2, seconds))
+    except OSError as exc:
+        print(f"[!] side-test failed: {exc}", file=sys.stderr)
+        return 1
+    finally:
+        try:
+            if restore_body is not None:
+                dev.write_block("lighting", restore_body, dev=handle)
+                print("[+] Lighting block restored", file=sys.stderr)
+        except OSError as exc:
+            print(f"[!] Restore failed: {exc}", file=sys.stderr)
+        try:
+            handle.close()
+        except Exception:
+            pass
+    return 0
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(
         description="Live speaker-driven visualiser for KEMOVE keyboards.",
@@ -557,6 +601,8 @@ def main(argv=None):
                         help="device profile key (default: auto-detect; e.g. k61se, k87-1980)")
     parser.add_argument("--force", action="store_true",
                         help="allow a provisional profile to receive live frames")
+    parser.add_argument("--side-test", action="store_true",
+                        help="send a static side-strip test frame and restore")
     parser.add_argument("--device", help="source name or sink serial "
                         "(default: the default sink's monitor)")
     parser.add_argument("--seconds", type=float, default=30.0,
@@ -626,6 +672,16 @@ def main(argv=None):
             "after hardware verification."
         )
     configure(profile)
+
+    if opts.side_test:
+        if opts.dry_run:
+            return side_test(profile, opts.seconds, dry_run=True)
+        if not profile.verified and not opts.force:
+            parser.error(
+                f"{profile.name} has a provisional profile; use --dry-run, or pass --force "
+                "after hardware verification."
+            )
+        return side_test(profile, opts.seconds, dry_run=False)
 
     design_file = {}
     if opts.design_file:
