@@ -19,6 +19,9 @@ from .colours import (
 LIGHTING_SIZE = 128
 COLOUR_SIZE = 420
 MODE_OFFSET = 0x0A
+SIDE_FLAG_OFFSET = 0x0E
+SIDE_MODE_OFFSET = 0x12
+SIDE_COLOUR_OFFSET = 0x13
 PARAMS_OFF = 0x3A
 PARAMS_END = 0x7E
 LIGHTING_TRAILER = b"\x5a\xa5"
@@ -33,11 +36,19 @@ RGB = tuple[int, int, int]
 
 
 @dataclass(frozen=True)
+class SideLightState:
+    flag: int
+    mode: int
+    colour: int
+
+
+@dataclass(frozen=True)
 class LightingState:
     mode: int
     brightness: int | None
     speed_level: int | None
     rainbow: bool | None
+    side: SideLightState
 
 
 def colour_format_for_profile(profile) -> str:
@@ -79,6 +90,9 @@ def edit_lighting(
     brightness: int | None = None,
     speed: int | None = None,
     rainbow: bool | None = None,
+    side_flag: int | None = None,
+    side_mode: int | None = None,
+    side_colour: int | None = None,
 ) -> bytes:
     """Return a copy of a lighting block with the requested fields changed.
 
@@ -88,6 +102,20 @@ def edit_lighting(
     """
     validate_lighting(body)
     out = bytearray(body)
+
+    if side_flag is not None:
+        if int(side_flag) not in (0, 1):
+            raise ValueError(f"side flag must be 0 or 1, got {side_flag}")
+        out[SIDE_FLAG_OFFSET] = int(side_flag)
+    if side_mode is not None:
+        if not 0 <= int(side_mode) <= 255:
+            raise ValueError(f"side mode out of range: {side_mode}")
+        out[SIDE_MODE_OFFSET] = int(side_mode)
+    if side_colour is not None:
+        if not 0 <= int(side_colour) <= 255:
+            raise ValueError(f"side colour out of range: {side_colour}")
+        out[SIDE_COLOUR_OFFSET] = int(side_colour)
+
     active_mode = out[MODE_OFFSET] if mode is None else int(mode)
     if not 0 <= active_mode <= 255:
         raise ValueError(f"mode out of range: {active_mode}")
@@ -121,15 +149,27 @@ def edit_lighting(
 def lighting_state(body: bytes) -> LightingState:
     validate_lighting(body)
     mode = body[MODE_OFFSET]
+    side = SideLightState(
+        flag=body[SIDE_FLAG_OFFSET],
+        mode=body[SIDE_MODE_OFFSET],
+        colour=body[SIDE_COLOUR_OFFSET],
+    )
     slot = slot_bytes(body, mode)
     if slot is None:
-        return LightingState(mode=mode, brightness=None, speed_level=None, rainbow=None)
+        return LightingState(
+            mode=mode,
+            brightness=None,
+            speed_level=None,
+            rainbow=None,
+            side=side,
+        )
     brightness, speed_byte = slot
     return LightingState(
         mode=mode,
         brightness=brightness,
         speed_level=(speed_byte >> 4) & 0x0F,
         rainbow=(speed_byte & 0x0F) == 0x07,
+        side=side,
     )
 
 

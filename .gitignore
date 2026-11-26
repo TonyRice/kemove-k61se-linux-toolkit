@@ -20,6 +20,14 @@ evidence/captures/*
 !evidence/captures/k87-probe/**
 !evidence/captures/k87-before/
 !evidence/captures/k87-before/**
+!evidence/captures/k87-side-0/
+!evidence/captures/k87-side-0/**
+!evidence/captures/k87-side-1/
+!evidence/captures/k87-side-1/**
+!evidence/captures/k87-side-2/
+!evidence/captures/k87-side-2/**
+!evidence/captures/k87-side-color/
+!evidence/captures/k87-side-color/**
 !evidence/captures/golden-reset/
 !evidence/captures/golden-reset/**
 

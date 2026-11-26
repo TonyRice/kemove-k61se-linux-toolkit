@@ -110,6 +110,22 @@ class LightingTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             edit_lighting(self.k87_light, mode=0, brightness=1)
 
+    def test_side_light_fields(self) -> None:
+        state = lighting_state(self.k87_light)
+        self.assertEqual(state.side.flag, 1)
+        self.assertEqual(state.side.mode, 1)
+        self.assertEqual(state.side.colour, 0)
+
+    def test_edit_side_light_only_changes_side_bytes(self) -> None:
+        before = self.k87_light
+        after = edit_lighting(before, side_mode=2, side_colour=1, side_flag=0)
+        changed = [i for i, (a, b) in enumerate(zip(before, after)) if a != b]
+        self.assertEqual(changed, [0x0E, 0x12, 0x13])
+        state = lighting_state(after)
+        self.assertEqual(state.side.flag, 0)
+        self.assertEqual(state.side.mode, 2)
+        self.assertEqual(state.side.colour, 1)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -13,6 +13,7 @@ captures/keymap-stock.bin
 captures/golden-reset/
 captures/k87-probe/
 captures/k87-before/
+captures/k87-side-*/
 captures/SESSION_INDEX.md
 ```
 

@@ -29,6 +29,8 @@ python3 -m kemove.lighting_cli read --profile k87-1980 --save-dir evidence/captu
 python3 -m kemove.lighting_cli set --profile k87-1980 --brightness 3 --dry-run
 python3 -m kemove.lighting_cli set --profile k87-1980 --brightness 3 --yes --force
 python3 -m kemove.lighting_cli set --profile k87-1980 \
+  --side-mode 2 --side-colour 1 --dry-run
+python3 -m kemove.lighting_cli set --profile k87-1980 \
   --restore evidence/captures/k87-before/lighting.bin --yes --force
 ```
 
@@ -178,7 +180,7 @@ These are useful for protocol work but not required to run the daily tools:
 - `docs/research/WINE.md` — running the Windows vendor app under Wine.
 - `evidence/captures/` — local raw USB captures, indexed by `evidence/captures/SESSION_INDEX.md`.
   Only `golden-reset/`, `k87-probe/`, `k87-before/`, `keymap-reset.bin`,
-  `keymap-stock.bin`, and the index are tracked.
+  `keymap-stock.bin`, `k87-side-*` evidence, and the index are tracked.
 - `evidence/dumps/` — local 128-byte lighting and 420-byte colour block snapshots; not
   tracked.
 - `research/dump_lighting.py`, `research/review_captures.py`,

@@ -422,8 +422,8 @@ Hardware tests should be opt-in and never run automatically in CI.
 The Python profile layer has started:
 
 - `kemove/layout.py` — tolerant vendor XML loader
-- `kemove/lighting.py` — 128-byte lighting validation and K61SE/K87 colour
-  record decoding
+- `kemove/lighting.py` — 128-byte lighting validation, K87 side-light fields,
+  and K61SE/K87 colour record decoding
 - `kemove/snapshot.py` — manifest loading, safe block reads, offline block diff
 - `k61se_snapshot.py` selects a profile, records it in new manifests, and
   gates provisional-profile restores

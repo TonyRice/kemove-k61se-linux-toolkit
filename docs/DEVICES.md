@@ -140,8 +140,19 @@ layout:
 | `0x0E` | `01` | `00` | unnamed state byte |
 | `0x48` | `04` | `03` | brightness of effect slot 8 |
 
-The lighting block is therefore very likely the same structure. Do not write
-it until a K87-specific round-trip test is done.
+The lighting block is therefore very likely the same structure. The K87 also
+has separate side-light/light-piping fields in the same block:
+
+| Offset | Meaning | Observed |
+|---:|---|---|
+| `0x0E` | side-light flag/state | 1 baseline, 0 after `Fn+Tab` |
+| `0x12` | side-light mode | 1 -> 2 -> 3 on repeated `Fn+Tab` |
+| `0x13` | side-light colour index | 0 -> 1 on `Fn+Capslock` |
+
+The 420-byte colour block did not change when the side light mode/colour
+changed, so the side colour is an index/nibble in the lighting block rather
+than a palette record. The K87 side-light evidence is tracked under
+`evidence/captures/k87-side-*`.
 
 ### Colour block: this is the real difference
 

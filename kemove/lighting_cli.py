@@ -12,6 +12,8 @@
 
     python3 -m kemove.lighting_cli set --profile k87-1980 --brightness 3 --dry-run
     python3 -m kemove.lighting_cli set --profile k87-1980 --brightness 3 --yes --force
+    python3 -m kemove.lighting_cli set --profile k87-1980 \
+        --side-mode 2 --side-colour 1 --dry-run
 
 `read` and `decode` are read-only.  `set` is an explicit writer: it reads the
 current block, shows the planned change, saves pre-write evidence, writes the
@@ -92,6 +94,9 @@ def describe_lighting(body: bytes) -> dict:
         "brightness": state.brightness,
         "speed_level": state.speed_level,
         "rainbow": state.rainbow,
+        "side_flag": state.side.flag,
+        "side_mode": state.side.mode,
+        "side_colour": state.side.colour,
     }
 
 
@@ -103,6 +108,10 @@ def _print_summary(lighting: bytes, colour: bytes, profile) -> None:
         "lighting: "
         f"mode={light['mode_hex']} brightness={light['brightness']} "
         f"speed={light['speed_level']} rainbow={light['rainbow']}"
+    )
+    print(
+        f"side light: flag={light['side_flag']} mode={light['side_mode']} "
+        f"colour={light['side_colour']}"
     )
     print(f"header 0x00-0x0F: {lighting[:16].hex(' ')}")
     records = decode_colour_block(colour, fmt)
@@ -185,12 +194,32 @@ def cmd_set(args, parser) -> int:
     profile = _profile(args, parser, need_device=True)
     modifications = any(
         value is not None
-        for value in (args.mode, args.brightness, args.speed, args.rainbow, args.restore)
+        for value in (
+            args.mode,
+            args.brightness,
+            args.speed,
+            args.rainbow,
+            args.side_flag,
+            args.side_mode,
+            args.side_colour,
+            args.restore,
+        )
     )
     if not modifications:
         parser.error("set needs at least one of --mode, --brightness, --speed, --rainbow, --restore")
-    if args.restore and any(value is not None for value in (args.mode, args.brightness, args.speed, args.rainbow)):
-        parser.error("--restore cannot be combined with --mode/--brightness/--speed/--rainbow")
+    if args.restore and any(
+        value is not None
+        for value in (
+            args.mode,
+            args.brightness,
+            args.speed,
+            args.rainbow,
+            args.side_flag,
+            args.side_mode,
+            args.side_colour,
+        )
+    ):
+        parser.error("--restore cannot be combined with the field setters")
     if not args.dry_run and not profile.verified and not args.force:
         parser.error(
             f"{profile.name} has a provisional profile; lighting writes are disabled. "
@@ -210,6 +239,9 @@ def cmd_set(args, parser) -> int:
             brightness=args.brightness,
             speed=args.speed,
             rainbow=rainbow,
+            side_flag=args.side_flag,
+            side_mode=args.side_mode,
+            side_colour=args.side_colour,
         )
 
     print(f"profile: {profile.name} ({profile.key})")
@@ -272,6 +304,9 @@ def main(argv: list[str] | None = None) -> int:
     set_cmd.add_argument("--brightness", type=int, help="brightness (0-9)")
     set_cmd.add_argument("--speed", type=int, help="speed level (1-5)")
     set_cmd.add_argument("--rainbow", choices=("on", "off"), help="firmware rainbow flag")
+    set_cmd.add_argument("--side-flag", type=int, choices=(0, 1), help="side-light flag")
+    set_cmd.add_argument("--side-mode", type=int, help="side-light effect mode")
+    set_cmd.add_argument("--side-colour", type=int, help="side-light colour index")
     set_cmd.add_argument("--restore", type=Path, help="write a saved 128-byte lighting body")
     set_cmd.add_argument("--save-dir", type=Path, help="evidence directory")
     set_cmd.add_argument("--dry-run", action="store_true", help="show the change without writing")
