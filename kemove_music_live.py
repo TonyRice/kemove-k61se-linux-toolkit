@@ -593,6 +593,31 @@ def side_test(profile, seconds=3.0, dry_run=False):
     return 0
 
 
+def restore_lighting(profile, restore_body):
+    """Restore the captured lighting block, reconnecting through USB churn."""
+    if restore_body is None:
+        return False
+    last_error = None
+    for attempt in range(12):
+        handle = None
+        try:
+            handle = dev.open_device(profile)
+            dev.write_block("lighting", restore_body, dev=handle)
+            print("[+] Lighting block restored", file=sys.stderr)
+            return True
+        except (OSError, RuntimeError) as exc:
+            last_error = exc
+        finally:
+            if handle is not None:
+                try:
+                    handle.close()
+                except Exception:
+                    pass
+        time.sleep(0.25)
+    print(f"[!] Restore failed after reconnects: {last_error}", file=sys.stderr)
+    return False
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(
         description="Live speaker-driven visualiser for KEMOVE keyboards.",
@@ -638,8 +663,8 @@ def main(argv=None):
                         help="JSON list of #RRGGBB stops, or {stops, mode}")
     parser.add_argument("--mode", choices=("column", "height"),
                         help="colour by column or by bar height")
-    parser.add_argument("--order", choices=("grb", "rgb"), default="grb",
-                        help="wire order (default: grb, confirmed on panel)")
+    parser.add_argument("--order", choices=("grb", "rgb"), default=None,
+                        help="wire order (default: grb for K61SE, rgb for K87)")
     parser.add_argument("--flat", action="store_true", default=None,
                         help="no vertical brightness gradient")
     parser.add_argument("--max-brightness", action="store_true",
@@ -679,6 +704,7 @@ def main(argv=None):
             "after hardware verification."
         )
     configure(profile)
+    order = opts.order or ("rgb" if profile.key == "k87-1980" else "grb")
 
     if opts.side_test:
         if opts.dry_run:
@@ -820,7 +846,8 @@ def main(argv=None):
     warned_silent = False
 
     print(f"[+] capturing {target_label}", file=sys.stderr)
-    print(f"[+] {profile.name}: {COLS} columns x {ROWS} rows", file=sys.stderr)
+    print(f"[+] {profile.name}: {COLS} columns x {ROWS} rows, order {order}",
+          file=sys.stderr)
     print(f"[+] {opts.fps:g} fps, design {design}, palette "
           f"{palette_label}, gain {opts.gain:g}", file=sys.stderr)
 
@@ -858,7 +885,7 @@ def main(argv=None):
                       "is anything playing?", file=sys.stderr)
                 warned_silent = True
             peak_values = peaks.update(values, interval)
-            body = render(values, design, palette, colour, opts.order, flat,
+            body = render(values, design, palette, colour, order, flat,
                           peak_values if design == "peak" else None,
                           phase=now - start,
                           max_brightness=max_brightness)
@@ -906,20 +933,20 @@ def main(argv=None):
 
     if handle is not None:
         try:
-            if restore_body is not None:
-                dev.write_block("lighting", restore_body, dev=handle)
-                print("[+] Lighting block restored", file=sys.stderr)
-            elif not opts.no_restore:
-                print("[!] No lighting block captured; the configured effect "
-                      "will return.", file=sys.stderr)
-        except OSError as exc:
-            print(f"[!] Restore failed: {exc}", file=sys.stderr)
-            print("[!] Apply a preset to get the effect back: "
-                  "python3 k61se_gui.py --apply presets/theme_solid_rainbow.json",
+            handle.close()
+        except Exception:
+            pass
+        handle = None
+    if restore_body is not None:
+        if not restore_lighting(profile, restore_body):
+            print("[!] Apply a preset to get the effect back:", file=sys.stderr)
+            print("    python3 -m kemove.lighting_cli set --profile k87-1980 "
+                  "--restore evidence/captures/k87-before/lighting.bin --yes --force",
                   file=sys.stderr)
             failed = True
-        finally:
-            handle.close()
+    elif not opts.no_restore:
+        print("[!] No lighting block captured; the configured effect "
+              "will return.", file=sys.stderr)
     return 1 if failed else 0
 
 
