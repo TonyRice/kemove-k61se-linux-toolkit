@@ -210,10 +210,15 @@ The new `kemove/` package is the start of the model-aware layer:
 
 - `kemove/devices.py` is the single registry of VID/PID, product strings,
   transports, keymap sizes, LED counts, colour formats, and layout XML paths.
+- `kemove/layout.py` is the tolerant vendor XML loader shared by the tools.
 - `kemove/colours.py` has the K87 `palette7` codec, kept separate from the
   K61SE single-colour records.
+- `kemove/lighting.py` validates lighting blocks and decodes single/palette7
+  colour records.
+- `kemove/snapshot.py` loads snapshot manifests and diffs blocks offline.
 - `kemove/probe.py` is a read-only inventory and keymap/lighting/colour probe.
-- `tests/test_devices.py` and `tests/test_k87_blocks.py` verify profile and
+- `tests/test_devices.py`, `tests/test_layout.py`, `tests/test_lighting.py`,
+  `tests/test_snapshot.py`, and `tests/test_k87_blocks.py` verify profile and
   block behaviour without hardware.
 
 `k61se_keymap.py` and `k61se_macro.py` are now profile-aware: they auto-detect
@@ -221,9 +226,10 @@ a single connected keyboard, accept `--profile k61se|k87-1980`, and load the
 profile's layout XML. K87 writes are gated behind `--force` until hardware
 round-trip tests are complete; dry-run keymap edits are allowed.
 
-The lighting/colour/power tools still use the K61SE code path. They should be
-moved onto the profile object next, with a K87 `palette7` colour path and the
-same pre-write/readback guards.
+The lighting/colour/power CLIs still use the K61SE code path. The shared
+`kemove/lighting.py` and `kemove/snapshot.py` modules are ready for the next
+wiring pass, which should add the K87 `palette7` path and the same
+pre-write/readback guards.
 
 ## Next checks
 

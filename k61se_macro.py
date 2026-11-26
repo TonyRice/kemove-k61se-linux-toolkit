@@ -44,14 +44,13 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import sys
 import time
-import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import k61se_dev as dev
 from kemove.devices import profile_for_key
+from kemove.layout import load_compat
 from kemove.discovery import find as find_device
 
 KEYMAP_OP = 0x03
@@ -131,32 +130,7 @@ def load_xml_keys(path: Path = XML_PATH):
     """
     if not path.exists():
         raise RuntimeError(f"missing key map: {path}")
-    text = path.read_text(encoding="utf-8", errors="replace")
-    text = re.sub(r'"([A-Za-z_][\w:-]*)=', r'" \1=', text)
-    root = ET.fromstring(text)
-    keys: dict[int, list[dict]] = {}
-    for elem in root.iter("key"):
-        try:
-            key_index = int(elem.get("key_index"))
-        except (TypeError, ValueError):
-            continue
-        idx = key_index
-        if not 0 <= idx < MATRIX_CELLS:
-            continue
-        try:
-            code = int(elem.get("code", "0"), 0)
-        except ValueError:
-            code = 0
-        keys.setdefault(idx, []).append(
-            {
-                "name": elem.get("name", "?"),
-                "desc": elem.get("desc", ""),
-                "code": code,
-                "row_col": elem.get("row_col", ""),
-            }
-        )
-    return keys
-
+    return load_compat(path, MATRIX_CELLS)
 
 # --------------------------------------------------------------------------- #
 # action decoding

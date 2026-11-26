@@ -417,6 +417,19 @@ Hardware tests should be opt-in and never run automatically in CI.
 - **2026-11-25:** Rust is the proposed implementation language for the core,
   CLI, and arrow daemon, subject to the Phase 0 spike.
 
+## 12a. Offline progress (2026-11-25)
+
+The Python profile layer has started:
+
+- `kemove/layout.py` — tolerant vendor XML loader
+- `kemove/lighting.py` — 128-byte lighting validation and K61SE/K87 colour
+  record decoding
+- `kemove/snapshot.py` — manifest loading, safe block reads, offline block diff
+- Tests cover both keyboard layouts and both colour formats
+
+Still pending: wiring the snapshot and lighting CLIs to those modules, then the
+K87 hardware round-trip.
+
 ## 13. Next Action
 
 Run the Phase 0 Rust spike:

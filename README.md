@@ -43,7 +43,7 @@ finished.
 
 | Directory | Purpose |
 |---|---|
-| `kemove/` | Shared profiles, discovery, colour codecs, read-only probe |
+| `kemove/` | Shared profiles, discovery, layout/lighting/snapshot codecs, read-only probe |
 | `k61se_*.py` | Daily runtime tools and the verified K61SE implementation |
 | `research/` | Capture, dump, and reverse-engineering scripts |
 | `evidence/` | Local captures and dumps; only canonical fixtures are tracked |
