@@ -10,15 +10,15 @@ Linux, using PipeWire's monitor of the default sink.  No microphone is used.
 
 Examples:
 
-    python3 k61se_music_live.py --dry-run            # terminal bars, no device
-    python3 k61se_music_live.py --seconds 30         # drive the keyboard
-    python3 k61se_music_live.py --seconds 30 --keep-open  # continue live
-    python3 k61se_music_live.py --colour FF0000 --seconds 30 --flat
-    python3 k61se_music_live.py --palette rainbow --seconds 30
-    python3 k61se_music_live.py --design peak --palette fire --seconds 30
-    python3 k61se_music_live.py --design psychedelic --palette rainbow
-    python3 k61se_music_live.py --design psychedelic --max-brightness
-    python3 k61se_music_live.py --design-file designs/music/psychedelic.json
+    python3 kemove_music_live.py --dry-run            # terminal bars, no device
+    python3 kemove_music_live.py --seconds 30         # drive the keyboard
+    python3 kemove_music_live.py --seconds 30 --keep-open  # continue live
+    python3 kemove_music_live.py --colour FF0000 --seconds 30 --flat
+    python3 kemove_music_live.py --palette rainbow --seconds 30
+    python3 kemove_music_live.py --design peak --palette fire --seconds 30
+    python3 kemove_music_live.py --design psychedelic --palette rainbow
+    python3 kemove_music_live.py --design psychedelic --max-brightness
+    python3 kemove_music_live.py --design-file designs/music/psychedelic.json
 
 The default palette is the one captured from the vendor app (`music_session_2`):
 purple/magenta -> red -> orange -> yellow -> green across the 14 columns,

@@ -1,8 +1,8 @@
-# K61SE Toolkit: Rust Core Evaluation and Migration Plan
+# KEMOVE Toolkit: Rust Core Evaluation and Migration Plan
 
 **Status:** Proposed / tabled  
 **Date:** 2026-11-25  
-**Repository:** `TonyRice/kemove-k61se-linux-toolkit`
+**Repository:** `TonyRice/kemove-linux-toolkit`
 
 ## 0. Multi-device update (2026-11-25)
 

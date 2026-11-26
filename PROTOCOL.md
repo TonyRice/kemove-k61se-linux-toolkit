@@ -462,17 +462,17 @@ paints a gradient across the bars, but that is not a firmware "rainbow mode":
 
 - The app's captured palette moves purple/magenta (bass, column 0) through red
   and orange to yellow/green (treble, column 13). The base triples are in
-  `k61se_music_live.py` (`APP_PALETTE`). The optional `rainbow` palette is the
+  `kemove_music_live.py` (`APP_PALETTE`). The optional `rainbow` palette is the
   classic cyan → green → yellow → orange gradient.
 - Within a bar the top cell is brightest and the bottom is about half as
   bright. That is the app's vertical gradient, not a per-cell level from the
   firmware.
 - Any cell can be any colour, and any key can be lit independently. The
   `test` pattern (Esc/Tab/Caps/Space) is a live demonstration;
-  `k61se_music_live.py --colour RRGGBB --flat` paints every lit cell one
+  `kemove_music_live.py --colour RRGGBB --flat` paints every lit cell one
   colour. `k61se_keys.py` uses the same frame for static per-key art, with no
   audio involved at all.
-- `k61se_music_live.py` drives this end to end from the Linux speaker or
+- `kemove_music_live.py` drives this end to end from the Linux speaker or
   Bluetooth monitor: real audio → FFT → frames, with the vendor app closed.
   Confirmed on the panel 2026-10-19. Designs (`bars`, `mirror`, `peak`,
   `pulse`) and custom palettes are chosen entirely in the host; the wire format
@@ -482,7 +482,7 @@ paints a gradient across the bars, but that is not a firmware "rainbow mode":
 
 Still untested: the **foreground** Brightness control (a different slider) and
 whether `op 0x88` reads the frame back. The channel order is **`(G,R,B)`**,
-confirmed on the panel 2026-10-19: `k61se_music_live.py --colour FF0000 --flat`
+confirmed on the panel 2026-10-19: `kemove_music_live.py --colour FF0000 --flat`
 lit red, not green.
 
 ---
@@ -1365,18 +1365,18 @@ python3 k61se_music.py --pattern off --no-restore      # zero frames, no restore
   the frames stop — `0x08` is an overlay, not a stored frame.
 - `--dry-run` is safe with the app open: it prints the body and exits.
 
-### `k61se_music_live.py` — speaker-driven visualiser
+### `kemove_music_live.py` — speaker-driven visualiser
 
 ```bash
-python3 k61se_music_live.py --dry-run                     # terminal bars, no device
-python3 k61se_music_live.py --seconds 30                  # drive the keyboard
-python3 k61se_music_live.py --seconds 30 --keep-open      # continue live
-python3 k61se_music_live.py --colour FF0000 --flat --seconds 30
-python3 k61se_music_live.py --palette rainbow --seconds 30
-python3 k61se_music_live.py --design peak --palette fire --seconds 30
-python3 k61se_music_live.py --design psychedelic --palette rainbow
-python3 k61se_music_live.py --design psychedelic --max-brightness
-python3 k61se_music_live.py --design-file designs/music/psychedelic.json
+python3 kemove_music_live.py --dry-run                     # terminal bars, no device
+python3 kemove_music_live.py --seconds 30                  # drive the keyboard
+python3 kemove_music_live.py --seconds 30 --keep-open      # continue live
+python3 kemove_music_live.py --colour FF0000 --flat --seconds 30
+python3 kemove_music_live.py --palette rainbow --seconds 30
+python3 kemove_music_live.py --design peak --palette fire --seconds 30
+python3 kemove_music_live.py --design psychedelic --palette rainbow
+python3 kemove_music_live.py --design psychedelic --max-brightness
+python3 kemove_music_live.py --design-file designs/music/psychedelic.json
 ```
 
 - Captures the **default sink's monitor**, not a microphone. `pw-record
@@ -1429,7 +1429,7 @@ python3 k61se_music_live.py --design-file designs/music/psychedelic.json
 - `designs/keys/*.json` for `k61se_keys.py`: `keys` (XML names), `cells` (raw
   indices), `all` (61 keys), `fill` (70 matrix cells), and the text shortcuts
   `text`, `text_colour` and `rainbow`.
-- `designs/music/*.json` for `k61se_music_live.py --design-file`: `design`,
+- `designs/music/*.json` for `kemove_music_live.py --design-file`: `design`,
   `palette` (a built-in name or a stop list), `mode`, `flat`,
   `max_brightness` and `colour`.
 - `designs/music/*_palette.json` for `--palette-file`: a stop list or
@@ -1877,7 +1877,7 @@ Things we believed and then disproved — recorded so nobody re-derives them:
   1's (solid's)** channels. Every effect has its own record; the offsets were
   never global, they just happened to belong to the first effect we tested.
 - ~~"The music block's channel order is assumed `(G,R,B)`, not tested."~~
-  Confirmed 2026-10-19: `k61se_music_live.py --colour FF0000 --flat` lit red,
+  Confirmed 2026-10-19: `kemove_music_live.py --colour FF0000 --flat` lit red,
   not green. Static art (`k61se_keys.py`) uses the same order.
 - ~~"One `0x08` frame latches and the panel keeps it until a lighting write."~~
   It does not. `0x08` is a transient foreground overlay; when the stream stops,

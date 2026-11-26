@@ -95,7 +95,7 @@ steady on the actual keyboard for a 10-second WASD test. If a particular frame
 shows the old effect between updates, raise it (`--fps 5`, `10`, `20`); there is
 no need to stream faster than the overlay timeout.
 
-## Music designs — `k61se_music_live.py --design-file ...`
+## Music designs — `kemove_music_live.py --design-file ...`
 
 ```json
 {
@@ -123,12 +123,12 @@ no need to stream faster than the overlay timeout.
 Run:
 
 ```bash
-python3 k61se_music_live.py --design-file designs/music/fire_bars.json
-python3 k61se_music_live.py --design-file designs/music/psychedelic.json
-python3 k61se_music_live.py --design psychedelic --palette rainbow
-python3 k61se_music_live.py --design psychedelic --max-brightness
-python3 k61se_music_live.py --palette rainbow --design peak
-python3 k61se_music_live.py --palette-file designs/music/sunset_palette.json
+python3 kemove_music_live.py --design-file designs/music/fire_bars.json
+python3 kemove_music_live.py --design-file designs/music/psychedelic.json
+python3 kemove_music_live.py --design psychedelic --palette rainbow
+python3 kemove_music_live.py --design psychedelic --max-brightness
+python3 kemove_music_live.py --palette rainbow --design peak
+python3 kemove_music_live.py --palette-file designs/music/sunset_palette.json
 ```
 
 A palette file is either a plain list or an object with `stops` and `mode`:

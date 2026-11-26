@@ -1,4 +1,4 @@
-# KEMOVE K61SE/K87 Linux control
+# KEMOVE Linux toolkit
 
 Host-side tools for KEMOVE keyboards on Linux. The K61SE (`258A:010C`) is the
 verified target; the K87-1980 (`258A:010C`) and K87SE-1980 (`258A:0164`) are
@@ -32,7 +32,7 @@ python3 -m kemove.lighting_cli set --profile k87-1980 \
   --side-mode 2 --side-colour 1 --dry-run
 
 # Live speaker-driven visualiser on the K87
-python3 k61se_music_live.py --profile k87-1980 --seconds 10 --force
+python3 kemove_music_live.py --profile k87-1980 --seconds 10 --force
 python3 -m kemove.lighting_cli set --profile k87-1980 \
   --restore evidence/captures/k87-before/lighting.bin --yes --force
 ```
@@ -142,7 +142,7 @@ with `sudo python3 -B k61se_arrows.py`.
 | `k61se_layout.py` | Lighting-block constants, effect names, state summaries. |
 | `k61se_keys.py` | Static `0x08` key art, text, `--fill`/`--all`, and persistent `--solid`. |
 | `k61se_music.py` | Send/test a single `0x08` music frame. |
-| `k61se_music_live.py` | Live audio capture and animated music rendering. |
+| `kemove_music_live.py` | Live audio capture and animated music rendering. |
 | `k61se_typing.py` | Host-side typing feedback: Neon Storm, hold, trail, ripple. |
 | `k61se_input.py` | Read-only keyboard report monitor; maps HID usages to `key_index`. |
 | `k61se_macro.py` | Read-only keymap/macro probe and offline decoder; no config writes. |

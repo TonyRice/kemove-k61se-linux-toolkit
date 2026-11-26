@@ -5,7 +5,7 @@
 transient: the firmware's configured effect takes the LEDs back when the frame
 stream stops.  This tool therefore streams the chosen frame continuously by
 default (1 fps), exactly like the music overlay.  No microphone, no FFT, and no
-dependency on `k61se_music_live.py`.
+dependency on `kemove_music_live.py`.
 
 Examples:
 
