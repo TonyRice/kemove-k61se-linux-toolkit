@@ -154,6 +154,17 @@ changed, so the side colour is an index/nibble in the lighting block rather
 than a palette record. The K87 side-light evidence is tracked under
 `evidence/captures/k87-side-*`.
 
+### Sound / real-time frames
+
+The live music tool now configures the matrix from the profile:
+
+- K61SE: 14 columns × 5 rows, cell base 1
+- K87-1980: 18 columns × 6 rows, cell base 0
+
+Both stream the same 378-byte `0x08` real-time frame. The K87 side strip is
+not yet included in that frame; this first pass animates the main key matrix.
+K87 is provisional, so live writes require `--force`.
+
 ### Colour block: this is the real difference
 
 The colour block is still **420 bytes / 20 records × 21 bytes**, but the

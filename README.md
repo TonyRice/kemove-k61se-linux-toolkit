@@ -30,6 +30,9 @@ python3 -m kemove.lighting_cli set --profile k87-1980 --brightness 3 --dry-run
 python3 -m kemove.lighting_cli set --profile k87-1980 --brightness 3 --yes --force
 python3 -m kemove.lighting_cli set --profile k87-1980 \
   --side-mode 2 --side-colour 1 --dry-run
+
+# Live speaker-driven visualiser on the K87
+python3 k61se_music_live.py --profile k87-1980 --seconds 10 --force
 python3 -m kemove.lighting_cli set --profile k87-1980 \
   --restore evidence/captures/k87-before/lighting.bin --yes --force
 ```

@@ -47,6 +47,8 @@ import time
 import numpy as np
 
 import k61se_dev as dev
+from kemove.devices import profile_for_key
+from kemove.discovery import find as find_device
 
 RATE = 48000
 CHANNELS = 1
@@ -54,6 +56,8 @@ FFT_SIZE = 2048
 HOP = 1024                       # 21.3 ms at 48 kHz
 ROWS = 5
 COLS = 14
+CELL_BASE = 1
+CELL_STRIDE = 6
 MUSIC_OP = 0x08
 FRAME_BYTES = 378
 
@@ -88,6 +92,22 @@ for lo, hi in zip(EDGES[:-1], EDGES[1:]):
     if not len(idx):
         idx = np.array([int(np.argmin(np.abs(FREQS - lo)))])
     BAND_BINS.append(idx)
+
+
+def configure(profile=None):
+    """Set the physical matrix geometry for the selected keyboard."""
+    global COLS, ROWS, CELL_BASE, EDGES, BAND_BINS
+    if profile is not None and profile.key == "k87-1980":
+        COLS, ROWS, CELL_BASE = 18, 6, 0
+    else:
+        COLS, ROWS, CELL_BASE = 14, 5, 1
+    EDGES = np.geomspace(50.0, 16000.0, COLS + 1)
+    BAND_BINS = []
+    for lo, hi in zip(EDGES[:-1], EDGES[1:]):
+        idx = np.where((FREQS >= lo) & (FREQS < hi))[0]
+        if not len(idx):
+            idx = np.array([int(np.argmin(np.abs(FREQS - lo)))])
+        BAND_BINS.append(idx)
 
 
 # --------------------------------------------------------------------------- #
@@ -160,7 +180,7 @@ def read_exact(fd, size):
 # analysis
 # --------------------------------------------------------------------------- #
 def levels(samples, gain, floor_db, span_db, gamma):
-    """14 band levels in 0..1 from the last FFT_SIZE samples."""
+    """Band levels in 0..1 from the last FFT_SIZE samples."""
     spectrum = np.abs(np.fft.rfft(samples * WINDOW)) / (FFT_SIZE / 2.0)
     db = 20.0 * np.log10(spectrum + 1e-12)
     out = []
@@ -190,6 +210,11 @@ class Smoother:
 # --------------------------------------------------------------------------- #
 # frame rendering
 # --------------------------------------------------------------------------- #
+def cell_index(col, row):
+    """Map a visualiser column/row to the keyboard's LED cell number."""
+    return CELL_BASE + CELL_STRIDE * col + row
+
+
 def put(body, key_index, rgb):
     off = 3 * key_index
     body[off:off + 3] = bytes(rgb)
@@ -391,9 +416,9 @@ def render_psychedelic(values, palette, colour, order, flat, phase,
     centre_y = (ROWS - 1) / 2.0
 
     for col in range(COLS):
-        x = (col - centre_x) / 7.0
+        x = (col - centre_x) / max(COLS / 2.0, 1.0)
         for row in range(ROWS):
-            y = (row - centre_y) / 2.5
+            y = (row - centre_y) / max(ROWS / 2.0, 1.0)
             radius = math.hypot(x, y)
             angle = math.atan2(y, x)
             field_a = _psychedelic_field(
@@ -417,7 +442,7 @@ def render_psychedelic(values, palette, colour, order, flat, phase,
                     intensity *= 0.6 + 0.4 * (1.0 - row / (ROWS - 1))
             rgb = tuple(max(0, min(255, int(channel * intensity)))
                         for channel in base)
-            put(body, 6 * col + 1 + row, wire(rgb, order))
+            put(body, cell_index(col, row), wire(rgb, order))
 
     return bytes(body)
 
@@ -441,7 +466,7 @@ def render(values, design, palette, colour, order, flat, peaks=None, phase=0.0,
                 factor = 1.0 if max_brightness or flat else (
                     1.0 - 0.35 * (row / (ROWS - 1)))
                 rgb = tuple(int(c * gain * factor) for c in base)
-                put(body, 6 * col + 1 + row, wire(rgb, order))
+                put(body, cell_index(col, row), wire(rgb, order))
         return bytes(body)
 
     if design == "mirror":
@@ -471,7 +496,7 @@ def render(values, design, palette, colour, order, flat, peaks=None, phase=0.0,
                 pos = (row - (ROWS - height)) / max(height - 1, 1)
                 factor = 1.0 - 0.5 * pos
                 rgb = tuple(int(c * factor) for c in rgb)
-            put(body, 6 * col + 1 + row, rgb)
+            put(body, cell_index(col, row), rgb)
 
     if design == "peak" and peaks is not None:
         for col, value in enumerate(peaks):
@@ -480,7 +505,7 @@ def render(values, design, palette, colour, order, flat, peaks=None, phase=0.0,
                 continue
             row = max(0, ROWS - peak_height)
             if peak_height > int(round(display[col] * ROWS)):
-                put(body, 6 * col + 1 + row, wire((255, 255, 255), order))
+                put(body, cell_index(col, row), wire((255, 255, 255), order))
 
     return bytes(body)
 
@@ -500,7 +525,7 @@ def check_writers():
     others = dev.other_writers()
     if not others:
         return
-    print("[!] Another process has the K61SE open:", file=sys.stderr)
+    print("[!] Another process has the keyboard open:", file=sys.stderr)
     for pid, cmd in others:
         print(f"      pid {pid}: {cmd}", file=sys.stderr)
     print("[!] Close the KEMOVE app (and any Wine device host), then retry.",
@@ -508,13 +533,13 @@ def check_writers():
     raise SystemExit(1)
 
 
-def reconnect_device():
+def reconnect_device(profile=None):
     """Try to reopen interface 1 after a transient USB/HID write failure."""
     for attempt in range(5):
         time.sleep(0.4)
         try:
-            handle = dev.open_device()
-            print("[+] Reconnected to the K61SE lighting interface",
+            handle = dev.open_device(profile)
+            print("[+] Reconnected to the lighting interface",
                   file=sys.stderr)
             return handle
         except (RuntimeError, OSError):
@@ -525,9 +550,13 @@ def reconnect_device():
 
 def main(argv=None):
     parser = argparse.ArgumentParser(
-        description="Live speaker-driven visualiser for the K61SE.",
+        description="Live speaker-driven visualiser for KEMOVE keyboards.",
         epilog="Close the vendor app first; one writer at a time.",
     )
+    parser.add_argument("--profile", metavar="KEY",
+                        help="device profile key (default: auto-detect; e.g. k61se, k87-1980)")
+    parser.add_argument("--force", action="store_true",
+                        help="allow a provisional profile to receive live frames")
     parser.add_argument("--device", help="source name or sink serial "
                         "(default: the default sink's monitor)")
     parser.add_argument("--seconds", type=float, default=30.0,
@@ -579,6 +608,24 @@ def main(argv=None):
         parser.error("--seconds must be >= 0")
     if opts.fps <= 0:
         parser.error("--fps must be > 0")
+
+    if opts.profile:
+        profile = profile_for_key(opts.profile)
+        if profile is None:
+            parser.error(f"unknown device profile {opts.profile!r}")
+    else:
+        try:
+            profile = find_device().profile
+        except RuntimeError as exc:
+            if not opts.dry_run:
+                parser.error(str(exc))
+            profile = profile_for_key("k61se")
+    if not opts.dry_run and not profile.verified and not opts.force:
+        parser.error(
+            f"{profile.name} has a provisional profile; use --dry-run, or pass --force "
+            "after hardware verification."
+        )
+    configure(profile)
 
     design_file = {}
     if opts.design_file:
@@ -636,7 +683,7 @@ def main(argv=None):
     if not opts.dry_run:
         check_writers()
         try:
-            handle = dev.open_device()
+            handle = dev.open_device(profile)
         except RuntimeError as exc:
             print(f"[!] {exc}", file=sys.stderr)
             return 1
@@ -676,6 +723,7 @@ def main(argv=None):
     warned_silent = False
 
     print(f"[+] capturing {target_label}", file=sys.stderr)
+    print(f"[+] {profile.name}: {COLS} columns x {ROWS} rows", file=sys.stderr)
     print(f"[+] {opts.fps:g} fps, design {design}, palette "
           f"{palette_label}, gain {opts.gain:g}", file=sys.stderr)
 
@@ -727,7 +775,7 @@ def main(argv=None):
                         handle.close()
                     except Exception:
                         pass
-                    handle = reconnect_device()
+                    handle = reconnect_device(profile)
                     if handle is None:
                         print("[!] Could not reopen the lighting interface.",
                               file=sys.stderr)
