@@ -21,8 +21,11 @@ device layer:
 
 The K87-1980 keymap read is confirmed: 504 bytes, 126 cells, factory XML
 matches 86/86. The K87 key indices differ from the K61SE (Esc is cell 0; Fn is
-cell 59). Writes and lighting are still unverified, so do not enable K87
-writes until a hardware readback confirms them.
+cell 59). The lighting block is also 128 bytes with the same parameter-table
+shape. The colour block is the real dialect difference: 420 bytes, but each
+21-byte record holds seven RGB triples instead of the K61SE's single RGB triple.
+The model layer therefore needs a `palette7` colour codec. Writes remain
+unverified; do not enable K87 writes until hardware readback confirms them.
 
 ## 1. Context
 

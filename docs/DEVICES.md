@@ -116,7 +116,54 @@ The read-only probe succeeded against the connected K87-1980:
 
 So the K87 uses the same G5KB keymap command and size as the K61SE. The
 difference is the layout/key-index map, which is exactly what model profiles
-are for. Writes and lighting are still unverified.
+are for. Writes are still unverified.
+
+### Lighting block
+
+The K87 lighting block is also **128 bytes** and keeps the same shape:
+
+- `0x38..0x39` = `ff ff`
+- 34 two-byte effect slots at `0x3A..0x7D`
+- `0x7E..0x7F` = `5a a5`
+- the current mode is at `0x0A`
+
+Compared with the K61SE reset snapshot, only six bytes differ, and they are
+consistent with the K87's current mode and brightness rather than a new block
+layout:
+
+| Offset | K87 | K61SE reset | Meaning |
+|---:|---|---|---|
+| `0x00` | `80` | `00` | model/state header byte; still unnamed |
+| `0x0A` | `08` | `0b` | current effect |
+| `0x0B` | `21` | `20` | unnamed state byte |
+| `0x0C` | `01` | `00` | unnamed state byte |
+| `0x0E` | `01` | `00` | unnamed state byte |
+| `0x48` | `04` | `03` | brightness of effect slot 8 |
+
+The lighting block is therefore very likely the same structure. Do not write
+it until a K87-specific round-trip test is done.
+
+### Colour block: this is the real difference
+
+The colour block is still **420 bytes / 20 records × 21 bytes**, but the
+record semantics are different:
+
+- K61SE record: one RGB triple at `+0..+2`, then 18 untouched bytes.
+- K87 record: **seven RGB triples**, a seven-colour palette.
+
+The K87 snapshot has this 21-byte palette in every record:
+
+```text
+ff 00 00  00 ff 00  00 00 ff  ff ff 00  ff 00 ff  00 ff ff  ff ff ff
+ red       green     blue      yellow     magenta    cyan      white
+```
+
+All 20 records are identical in the captured state. The K61SE reset block has
+only a single red/green/blue triple per record.
+
+So the keymap and lighting are the same protocol family; the **colour encoder
+and decoder are model-specific**. Writing a K61SE colour block to a K87 would
+produce a different palette, not necessarily the intended colours.
 
 ## Read-only verification
 
@@ -132,7 +179,6 @@ To verify the wired protocol and measure the blocks:
 
 ```bash
 python3 -m kemove.probe --read-keymap
-python3 -m kemove.probe --read-keymap --keymap-size 504 --save captures/k87-keymap-probe.bin
 python3 -m kemove.probe --read-all --save-dir captures/k87-probe
 ```
 
@@ -152,9 +198,12 @@ and compared.
 The new `kemove/` package is the start of the model-aware layer:
 
 - `kemove/devices.py` is the single registry of VID/PID, product strings,
-  transports, keymap sizes, LED counts, and layout XML paths.
-- `kemove/probe.py` is a read-only inventory and keymap probe.
-- `tests/test_devices.py` verifies profile matching without hardware.
+  transports, keymap sizes, LED counts, colour formats, and layout XML paths.
+- `kemove/colours.py` has the K87 `palette7` codec, kept separate from the
+  K61SE single-colour records.
+- `kemove/probe.py` is a read-only inventory and keymap/lighting/colour probe.
+- `tests/test_devices.py` and `tests/test_k87_blocks.py` verify profile and
+  block behaviour without hardware.
 
 The existing `k61se_*.py` tools are still the verified K61SE implementation.
 They should be migrated onto the profile registry rather than copied for every
@@ -164,12 +213,14 @@ the profile object, then make the CLI wrappers accept `--profile`/auto-detect.
 ## Next checks
 
 1. ~~Read the K87 keymap and confirm the 504-byte block.~~ Done on 2026-11-25.
-2. Read the K87 lighting block and compare the mode table with the K87 XML.
-3. Read the K87 colour block and check whether it is the same 420-byte record
-   layout as the K61SE.
-4. Repeat over the K87 2.4G receiver; if it appears as `3554:FA09`, implement or
+2. ~~Read the K87 lighting and colour blocks.~~ Done on 2026-11-25.
+3. ~~Add a K87 palette codec (`palette7`) and tests for round-tripping one record.~~ Done in `kemove/colours.py`.
+4. Make the keymap/lighting CLI profile-aware so it loads the K87 XML and
+   key-index map automatically.
+5. Add a K87 keymap write test on a non-arrow key with pre-write readback and
+   restore.
+6. Add a K87 lighting/colour read-modify-write test using the new palette codec.
+7. Repeat over the K87 2.4G receiver; if it appears as `3554:FA09`, implement or
    reuse the `CDrv3632` framing.
-5. Make the keymap CLI profile-aware so it loads the K87 XML and key-index map
-   automatically.
-6. Only after the read-only checks pass, add K87 write support with the same
-   pre-write readback and restore guards used by the K61SE tools.
+8. Only after those pass, enable K87 write support with the same pre-write
+   readback and restore guards used by the K61SE tools.

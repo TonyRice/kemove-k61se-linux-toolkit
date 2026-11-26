@@ -46,6 +46,7 @@ class DeviceProfile:
     report_len: int | None = None
     keymap_len: int | None = None
     led_count: int | None = None
+    colour_format: str = "single"
     layout: str | None = None
     verified: bool = False
     notes: str = ""
@@ -112,12 +113,14 @@ PROFILES: tuple[DeviceProfile, ...] = (
         report_len=520,
         keymap_len=504,
         led_count=108,
+        colour_format="palette7",
         layout="app/layouts/K87-1980-keyboard.xml",
         verified=False,
         notes=(
             "Same USB identity as K61SE/K68SE. Keymap read verified: 504-byte "
-            "body, 126 cells, factory XML matches 86/86. Writes and lighting "
-            "are still unverified."
+            "body, 126 cells, factory XML matches 86/86. Colour records are "
+            "seven RGB triples per effect, not the K61SE single-colour record. "
+            "Writes are still unverified."
         ),
     ),
     DeviceProfile(
