@@ -56,11 +56,32 @@ def _profile(args, parser, *, need_device: bool):
     return profile_for_key("k61se")
 
 
-def _read_block(op: int, size: int, profile) -> bytes:
-    body = bytes(dev.read_body(op, size, 0, profile=profile))
-    if len(body) != size:
-        raise OSError(f"read returned {len(body)} bytes, wanted {size}")
-    return body
+def _read_block(op: int, size: int, profile, attempts: int = 20) -> bytes:
+    """Read a block, waiting through a post-write USB re-enumeration.
+
+    A lighting write can make the keyboard disappear from hidapi for a moment.
+    Retry discovery/open instead of failing the verification immediately.
+    """
+    last_error: Exception | None = None
+    for attempt in range(attempts):
+        try:
+            body = bytes(dev.read_body(op, size, 0, profile=profile))
+        except RuntimeError as exc:
+            if "multiple recognised" in str(exc):
+                raise
+            last_error = exc
+        except OSError as exc:
+            last_error = exc
+        else:
+            if len(body) != size:
+                last_error = OSError(f"read returned {len(body)} bytes, wanted {size}")
+            else:
+                return body
+        if attempt + 1 < attempts:
+            time.sleep(0.25)
+    raise RuntimeError(
+        f"keyboard did not return after re-enumeration for op 0x{op:02X}: {last_error}"
+    )
 
 
 def describe_lighting(body: bytes) -> dict:
@@ -83,6 +104,7 @@ def _print_summary(lighting: bytes, colour: bytes, profile) -> None:
         f"mode={light['mode_hex']} brightness={light['brightness']} "
         f"speed={light['speed_level']} rainbow={light['rainbow']}"
     )
+    print(f"header 0x00-0x0F: {lighting[:16].hex(' ')}")
     records = decode_colour_block(colour, fmt)
     print(f"colour records: {len(records)}")
     for i, record in enumerate(records):
