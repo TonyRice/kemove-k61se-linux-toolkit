@@ -425,10 +425,13 @@ The Python profile layer has started:
 - `kemove/lighting.py` — 128-byte lighting validation and K61SE/K87 colour
   record decoding
 - `kemove/snapshot.py` — manifest loading, safe block reads, offline block diff
-- Tests cover both keyboard layouts and both colour formats
+- `k61se_snapshot.py` selects a profile, records it in new manifests, and
+  gates provisional-profile restores
+- `kemove/lighting_cli.py` provides read-only lighting/colour inspection and
+  offline decoding for either colour format
+- Tests cover both keyboard layouts, both colour formats, and snapshot diffs
 
-Still pending: wiring the snapshot and lighting CLIs to those modules, then the
-K87 hardware round-trip.
+Still pending: K87 write round-trips and the 2.4G transport.
 
 ## 13. Next Action
 

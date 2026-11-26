@@ -20,6 +20,10 @@ python3 -m kemove.probe --json
 # Read-only keymap/lighting/colour probe for a recognised wired G5KB device
 python3 -m kemove.probe --read-keymap
 python3 -m kemove.probe --read-all --save-dir evidence/captures/k87-probe
+
+# Read-only lighting/colour inspection
+python3 -m kemove.lighting_cli read --profile k87-1980
+python3 -m kemove.lighting_cli read --profile k87-1980 --save-dir evidence/captures/k87-live
 ```
 
 The probe is the safe first step for a new model: it reports the exact product
@@ -71,6 +75,8 @@ python3 k61se_keymap.py --read
 
 # Read-only full-state snapshot (lighting, colour, keymaps, macros, info)
 python3 k61se_snapshot.py --capture evidence/captures/reset-before
+# K87:
+python3 k61se_snapshot.py --profile k87-1980 --capture evidence/captures/k87-before
 # Now hold Fn + Tab for 5 seconds, then:
 python3 k61se_snapshot.py --capture evidence/captures/reset-after
 python3 k61se_snapshot.py --diff evidence/captures/reset-before evidence/captures/reset-after

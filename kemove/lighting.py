@@ -40,6 +40,11 @@ class LightingState:
     rainbow: bool | None
 
 
+def colour_format_for_profile(profile) -> str:
+    """Return the colour-record format declared by a DeviceProfile."""
+    return getattr(profile, "colour_format", SINGLE)
+
+
 def validate_lighting(body: bytes) -> None:
     if len(body) != LIGHTING_SIZE:
         raise ValueError(f"lighting block must be {LIGHTING_SIZE} bytes, got {len(body)}")

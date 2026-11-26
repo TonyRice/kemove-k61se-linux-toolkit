@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""K61SE state snapshots, offline diffs, and explicit golden-state restore.
+"""KEMOVE state snapshots, offline diffs, and explicit golden-state restore.
 
 A snapshot is a directory containing ``snapshot.json`` plus one raw body per
 block.  Capture and diff are read-only.  ``--restore`` is an explicit writer:
@@ -17,8 +17,9 @@ The capture covers the blocks needed for a golden-reset comparison:
 The keymap body is the same one written by ``k61se_keymap.py``.  Snapshot
 restore records macros but does not write them; a validated one-shot macro
 payload writer lives in ``k61se_macro_write.py``.  Keymap layer 0 is the
-hardware-confirmed write; other layers need ``--force`` and are written only
-when explicitly selected.
+hardware-confirmed K61SE write; other layers need ``--force`` and are written
+only when explicitly selected.  K87 capture is read-only until its hardware
+round-trip is complete.
 
 Capture and restore must be run by the device owner.  The vendor app has to be
 closed: it consumes report 6 and its state changes between blocks.
@@ -50,6 +51,9 @@ from pathlib import Path
 import k61se_dev as dev
 import k61se_layout as layout
 import k61se_macro as km
+from kemove.devices import profile_for_key
+from kemove.discovery import find as find_device
+from kemove.lighting import lighting_state
 
 KEYMAP_OP = 0x03
 KEYMAP_SIZE = 504
@@ -91,13 +95,13 @@ def sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def read_block(op, size, sub=0, chunks=False):
+def read_block(op, size, sub=0, chunks=False, profile=None):
     """Read one body, returning (body, None) or (None, error text)."""
     try:
         if chunks:
-            body = bytes(dev.read_body_chunks(op, size, sub))
+            body = bytes(dev.read_body_chunks(op, size, sub, profile=profile))
         else:
-            body = bytes(dev.read_body(op, size, sub))
+            body = bytes(dev.read_body(op, size, sub, profile=profile))
         if len(body) != size:
             return None, f"wanted {size} bytes, got {len(body)}"
         return body, None
@@ -159,7 +163,9 @@ def capture(args, parser):
         # Do not leave an old manifest pointing at half-overwritten blocks.
         manifest_path.unlink()
 
-    keys = km.load_xml_keys()
+    profile = getattr(args, "profile_obj", None) or profile_for_key("k61se")
+    layout_path = Path(args.layout) if getattr(args, "layout", None) else profile.layout_path()
+    keys = km.load_xml_keys(layout_path or km.XML_PATH)
     layers = parse_layers(args.layers or "0-7")
     errors = []
     blocks = {}
@@ -167,7 +173,7 @@ def capture(args, parser):
 
     def do_block(name, op, size, sub=0, chunks=False, **meta):
         print(f"[*] {name:<14} read 0x{0x80 | op:02X} sub {sub} size {size} ...")
-        body, error = read_block(op, size, sub, chunks)
+        body, error = read_block(op, size, sub, chunks, profile)
         if body is None:
             errors.append({"block": name, "error": error})
             print(f"[!] {name}: {error}")
@@ -190,12 +196,18 @@ def capture(args, parser):
 
     lighting = do_block("lighting", LIGHTING_OP, layout.LIGHTING_SIZE,
                         restore="supported")
-    if lighting is not None and len(lighting) > layout.MODE_BODY_OFF:
-        mode = lighting[layout.MODE_BODY_OFF]
-        analysis["lighting"] = {
-            "mode": f"0x{mode:02X}",
-            "mode_name": layout.mode_name(mode),
-        }
+    if lighting is not None:
+        try:
+            state = lighting_state(lighting)
+            analysis["lighting"] = {
+                "mode": f"0x{state.mode:02X}",
+                "mode_name": layout.mode_name(state.mode),
+                "brightness": state.brightness,
+                "speed_level": state.speed_level,
+                "rainbow": state.rainbow,
+            }
+        except ValueError as exc:
+            errors.append({"block": "lighting", "error": str(exc)})
 
     do_block("colour", COLOUR_OP, layout.COLOUR_SIZE, restore="supported")
 
@@ -234,9 +246,11 @@ def capture(args, parser):
         "read_only": True,
         "created": datetime.now().astimezone().isoformat(timespec="seconds"),
         "device": {
-            "vid": f"0x{dev.VENDOR_ID:04X}",
-            "pid": f"0x{dev.PRODUCT_ID:04X}",
-            "interface": 1,
+            "vid": f"0x{profile.vendor_id:04X}",
+            "pid": f"0x{profile.product_id:04X}",
+            "interface": profile.interface_number,
+            "profile": profile.key,
+            "product": profile.name,
         },
         "clean": not (others or others_end),
         "other_writers": [{"pid": pid, "command": cmd} for pid, cmd in others],
@@ -401,13 +415,28 @@ def restore_command(args, parser):
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         parser.error(str(exc))
 
+    profile = getattr(args, "profile_obj", None) or profile_for_key("k61se")
     expected = manifest.get("device", {})
-    actual_vid = f"0x{dev.VENDOR_ID:04X}"
-    actual_pid = f"0x{dev.PRODUCT_ID:04X}"
+    actual_vid = f"0x{profile.vendor_id:04X}"
+    actual_pid = f"0x{profile.product_id:04X}"
     if expected.get("vid") and expected["vid"].lower() != actual_vid.lower():
         parser.error(f"snapshot VID {expected['vid']} does not match {actual_vid}")
     if expected.get("pid") and expected["pid"].lower() != actual_pid.lower():
         parser.error(f"snapshot PID {expected['pid']} does not match {actual_pid}")
+    expected_profile = expected.get("profile")
+    if expected_profile and expected_profile != profile.key:
+        parser.error(
+            f"snapshot profile {expected_profile!r} does not match {profile.key!r}"
+        )
+    if not expected_profile and profile.key != "k61se":
+        parser.error(
+            "legacy snapshot has no profile; use --profile k61se or capture a new snapshot"
+        )
+    if not args.dry_run and not profile.verified and not args.force:
+        parser.error(
+            f"{profile.name} has a provisional profile; restore is disabled. "
+            "Use --dry-run, or pass --force after hardware verification."
+        )
 
     try:
         layers = parse_layers(args.layers or "0")
@@ -510,6 +539,9 @@ def restore_command(args, parser):
         layers=args.layers or "0",
         macro_size=0,
         force=False,
+        profile_obj=profile,
+        profile=profile.key,
+        layout=getattr(args, "layout", None),
     )
     print(f"\n[*] Saving pre-restore snapshot to {pre_dir} ...")
     if capture(pre_args, parser) != 0:
@@ -539,7 +571,7 @@ def restore_command(args, parser):
 
         print(f"[*] writing {name}: 0x{op:02X} sub {sub}, {size} bytes ...")
         try:
-            written = dev.write_body(op, body, sub=sub)
+            written = dev.write_body(op, body, sub=sub, profile=profile)
         except OSError as exc:
             result["failed"] = name
             result["error"] = str(exc)
@@ -553,7 +585,7 @@ def restore_command(args, parser):
         last_error = None
         for _ in range(3):
             try:
-                post = bytes(dev.read_body(op, size, sub))
+                post = bytes(dev.read_body(op, size, sub, profile=profile))
             except OSError as exc:
                 post = None
                 last_error = exc
@@ -608,12 +640,16 @@ def restore_command(args, parser):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(
-        description="K61SE state snapshot capture/diff, plus an explicit "
+        description="KEMOVE state snapshot capture/diff, plus an explicit "
                     "golden-state restore. Capture and diff are read-only; "
                     "--restore saves a pre-snapshot and verifies every write.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__.split("Examples:", 1)[1] if "Examples:" in __doc__ else None,
     )
+    parser.add_argument("--profile", metavar="KEY",
+                        help="device profile key (default: auto-detect; e.g. k61se, k87-1980)")
+    parser.add_argument("--layout", metavar="FILE",
+                        help="override the layout XML from the profile")
     parser.add_argument("--capture", metavar="DIR",
                         help="capture a new snapshot into DIR")
     parser.add_argument("--diff", nargs=2, metavar=("BEFORE", "AFTER"),
@@ -655,6 +691,18 @@ def main(argv=None):
         parser.error("--yes is only for --restore")
     if args.pre_dir and not args.restore:
         parser.error("--pre-dir is only for --restore")
+
+    if args.capture or args.restore:
+        if args.profile:
+            profile = profile_for_key(args.profile)
+            if profile is None:
+                parser.error(f"unknown device profile {args.profile!r}")
+        else:
+            try:
+                profile = find_device().profile
+            except RuntimeError as exc:
+                parser.error(str(exc))
+        args.profile_obj = profile
 
     if args.capture:
         return capture(args, parser)
