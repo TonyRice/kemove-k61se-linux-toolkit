@@ -105,57 +105,60 @@ def _print_table(rows: list[dict[str, Any]]) -> None:
         print("  ".join(cell[: widths[i]].ljust(widths[i]) for i, cell in enumerate(row)))
 
 
-def _read_keymap(row: dict[str, Any], size: int) -> bytes:
-    """Send one read-only G5KB keymap request and return the body.
+def _read_g5kb(row: dict[str, Any], op: int, size: int, label: str) -> bytes:
+    """Send one read-only G5KB request and return the block body.
 
-    This is deliberately a read: opcode 0x83 has the read bit set.  It does not
-    write a block or change any device state.
+    ``op`` must have the read bit (0x80) set.  This never clears a bit or
+    writes a block, so it cannot change device state.
     """
     if row.get("transport") != G5KB:
         raise SystemExit(
             f"{row.get('profile') or 'device'} uses {row.get('transport') or 'an unknown transport'}; "
-            "the G5KB keymap reader only handles 520-byte report-6 devices"
+            "the G5KB reader only handles 520-byte report-6 devices"
         )
+    if not op & 0x80:
+        raise ValueError(f"{label} read opcode must have bit 7 set: 0x{op:02x}")
 
     import hid
 
     dev = hid.device()
     dev.open_path(row["path"].encode() if isinstance(row["path"], str) else row["path"])
     try:
-        req = bytes([0x06, 0x83, 0x00, 0x00, 0x01, 0x00, size & 0xFF, (size >> 8) & 0xFF])
+        req = bytes([0x06, op, 0x00, 0x00, 0x01, 0x00, size & 0xFF, (size >> 8) & 0xFF])
         req += bytes(520 - len(req))
         written = dev.send_feature_report(req)
         if written < 0:
-            raise OSError(f"read request failed: {dev.error()}")
+            raise OSError(f"{label} read request failed: {dev.error()}")
         time.sleep(0.03)
         raw = bytes(dev.get_feature_report(0x06, 520))
     finally:
         dev.close()
 
-    if len(raw) >= 8 and raw[0] == 0x06 and (raw[1] & 0x7F) == 0x03:
+    cmd = op & 0x7F
+    if len(raw) >= 8 and raw[0] == 0x06 and (raw[1] & 0x7F) == cmd:
         body = raw[8:]
-    elif raw and (raw[0] & 0x7F) == 0x03:
+    elif raw and (raw[0] & 0x7F) == cmd:
         body = raw[7:]
     else:
-        raise OSError(f"unexpected keymap reply ({len(raw)} bytes): {raw[:16].hex(' ')}")
+        raise OSError(f"unexpected {label} reply ({len(raw)} bytes): {raw[:16].hex(' ')}")
     if len(body) < size:
-        raise OSError(f"short keymap reply: wanted {size} bytes, got {len(body)}")
+        raise OSError(f"short {label} reply: wanted {size} bytes, got {len(body)}")
     return body[:size]
 
 
-def _print_keymap(row: dict[str, Any], body: bytes, path: Path | None) -> None:
+def _print_block(row: dict[str, Any], label: str, body: bytes, path: Path | None) -> None:
     print(f"device: {row['product']} ({row['vid_pid']}, {row['path']})")
     print(f"profile: {row['profile']} ({'verified' if row['verified'] else 'provisional'})")
-    print(f"keymap body: {len(body)} bytes ({len(body) // 4} four-byte cells)")
+    print(f"{label} body: {len(body)} bytes")
     print(f"first 64 bytes: {body[:64].hex(' ')}")
-
-    cells = [body[i : i + 4] for i in range(0, len(body), 4)]
-    nonzero = [(i, cell) for i, cell in enumerate(cells) if any(cell)]
-    print(f"non-empty cells: {len(nonzero)}")
-    for i, cell in nonzero[:24]:
-        print(f"  cell {i:3d} (offset 0x{i * 4:03x}): {cell.hex(' ')}")
-    if len(nonzero) > 24:
-        print(f"  ... {len(nonzero) - 24} more")
+    if label == "keymap":
+        cells = [body[i : i + 4] for i in range(0, len(body), 4)]
+        nonzero = [(i, cell) for i, cell in enumerate(cells) if any(cell)]
+        print(f"non-empty cells: {len(nonzero)}")
+        for i, cell in nonzero[:24]:
+            print(f"  cell {i:3d} (offset 0x{i * 4:03x}): {cell.hex(' ')}")
+        if len(nonzero) > 24:
+            print(f"  ... {len(nonzero) - 24} more")
     if path is not None:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(body)
@@ -172,6 +175,21 @@ def main(argv: list[str] | None = None) -> int:
         help="send one read-only G5KB keymap request to the first recognised device",
     )
     parser.add_argument(
+        "--read-lighting",
+        action="store_true",
+        help="read the 128-byte G5KB lighting block without writing it",
+    )
+    parser.add_argument(
+        "--read-colour",
+        action="store_true",
+        help="read the 420-byte G5KB colour block without writing it",
+    )
+    parser.add_argument(
+        "--read-all",
+        action="store_true",
+        help="read keymap, lighting, and colour blocks (read-only)",
+    )
+    parser.add_argument(
         "--keymap-size",
         type=int,
         default=0,
@@ -180,21 +198,43 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--save",
         type=Path,
-        help="save the raw keymap body for offline comparison",
+        help="save a single keymap body to this path",
+    )
+    parser.add_argument(
+        "--save-dir",
+        type=Path,
+        help="save each requested block as keymap.bin/lighting.bin/colour.bin",
     )
     args = parser.parse_args(argv)
 
     rows = _rows(all_devices=args.all)
-    if args.read_keymap:
+    reads = args.read_keymap or args.read_lighting or args.read_colour or args.read_all
+    if reads:
         candidates = [row for row in rows if row.get("profile") and row.get("transport") == G5KB]
         if not candidates:
-            print("No recognised G5KB keyboard found for --read-keymap.", file=sys.stderr)
+            print("No recognised G5KB keyboard found for a read-only block request.", file=sys.stderr)
             return 1
         row = candidates[0]
         profile = profile_for_key(str(row["profile"]))
-        size = args.keymap_size or (profile.keymap_len if profile and profile.keymap_len else 504)
-        body = _read_keymap(row, size)
-        _print_keymap(row, body, args.save)
+        keymap_size = args.keymap_size or (profile.keymap_len if profile and profile.keymap_len else 504)
+
+        jobs: list[tuple[str, int, int]] = []
+        if args.read_all or args.read_keymap:
+            jobs.append(("keymap", 0x83, keymap_size))
+        if args.read_all or args.read_lighting:
+            jobs.append(("lighting", 0x84, 128))
+        if args.read_all or args.read_colour:
+            jobs.append(("colour", 0x8A, 420))
+
+        for label, op, size in jobs:
+            body = _read_g5kb(row, op, size, label)
+            save_path = None
+            if label == "keymap" and args.save is not None:
+                save_path = args.save
+            elif args.save_dir is not None:
+                save_path = args.save_dir / f"{label}.bin"
+            _print_block(row, label, body, save_path)
+            print()
         return 0
 
     if args.json:

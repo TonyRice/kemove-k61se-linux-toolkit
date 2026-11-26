@@ -17,8 +17,9 @@ tools.
 python3 -m kemove.probe
 python3 -m kemove.probe --json
 
-# Read-only keymap probe for a recognised wired G5KB device
+# Read-only keymap/lighting/colour probe for a recognised wired G5KB device
 python3 -m kemove.probe --read-keymap
+python3 -m kemove.probe --read-all --save-dir captures/k87-probe
 ```
 
 The probe is the safe first step for a new model: it reports the exact product

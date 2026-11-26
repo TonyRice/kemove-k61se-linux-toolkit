@@ -128,16 +128,18 @@ python3 -m kemove.probe --json
 python3 -m kemove.probe --all
 ```
 
-To verify the wired protocol and measure the keymap block:
+To verify the wired protocol and measure the blocks:
 
 ```bash
 python3 -m kemove.probe --read-keymap
 python3 -m kemove.probe --read-keymap --keymap-size 504 --save captures/k87-keymap-probe.bin
+python3 -m kemove.probe --read-all --save-dir captures/k87-probe
 ```
 
-`--read-keymap` sets the read bit (`0x83`), sends one request, and reads the
-reply. It does **not** write a block. Run it with the vendor app closed and only
-the keyboard under test connected.
+`--read-keymap` sets the read bit (`0x83`); `--read-lighting` uses `0x84` and
+`--read-colour` uses `0x8A`. `--read-all` requests all three. They only send
+read requests and never write a block. Run them with the vendor app closed and
+only the keyboard under test connected.
 
 The K61SE reader assumes 504 bytes (126 four-byte cells). The K87 uses the
 same 504-byte block; the unused cells 102-125 are zero. The K87 layout has 108
