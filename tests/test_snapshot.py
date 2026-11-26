@@ -11,6 +11,7 @@ from kemove.snapshot import Snapshot
 
 ROOT = Path(__file__).resolve().parent.parent
 GOLDEN = ROOT / "evidence" / "captures" / "golden-reset"
+K87 = ROOT / "evidence" / "captures" / "k87-before"
 
 
 class SnapshotTests(unittest.TestCase):
@@ -27,6 +28,17 @@ class SnapshotTests(unittest.TestCase):
     def test_snapshot_does_not_diff_against_itself(self) -> None:
         snap = Snapshot.load(GOLDEN)
         self.assertEqual(snap.diff(snap), [])
+
+    def test_k87_baseline_snapshot(self) -> None:
+        snap = Snapshot.load(K87)
+        self.assertIsNotNone(snap.profile)
+        assert snap.profile is not None
+        self.assertEqual(snap.profile.key, "k87-1980")
+        self.assertEqual(len(snap.blocks), 12)
+        self.assertEqual(snap.block("info"), bytes.fromhex("03 00 00 00 00 8e"))
+        self.assertEqual(len(snap.block("keymap-layer0")), 504)
+        self.assertFalse(any(snap.block("macros")))
+        self.assertEqual(snap.block("keymap-layer0"), snap.block("keymap-layer7"))
 
     def test_snapshot_diff_reports_changed_block(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

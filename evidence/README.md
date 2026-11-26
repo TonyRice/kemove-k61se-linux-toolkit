@@ -12,6 +12,7 @@ captures/keymap-reset.bin
 captures/keymap-stock.bin
 captures/golden-reset/
 captures/k87-probe/
+captures/k87-before/
 captures/SESSION_INDEX.md
 ```
 

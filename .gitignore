@@ -18,6 +18,8 @@ evidence/captures/*
 !evidence/captures/keymap-stock.bin
 !evidence/captures/k87-probe/
 !evidence/captures/k87-probe/**
+!evidence/captures/k87-before/
+!evidence/captures/k87-before/**
 !evidence/captures/golden-reset/
 !evidence/captures/golden-reset/**
 

@@ -74,11 +74,11 @@ class Snapshot:
             raise ValueError(f"{manifest_path} is not a {SNAPSHOT_KIND} manifest")
 
         profile = None
-        profile_key = manifest.get("profile")
+        device = manifest.get("device", {})
+        profile_key = manifest.get("profile") or device.get("profile")
         if profile_key:
             profile = profile_for_key(str(profile_key))
         if profile is None:
-            device = manifest.get("device", {})
             vid = str(device.get("vid", "")).lower()
             pid = str(device.get("pid", "")).lower()
             # Legacy snapshots predate the profile field.  K61SE is the only

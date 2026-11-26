@@ -1,0 +1,208 @@
+{
+  "schema": 1,
+  "kind": "k61se-snapshot",
+  "read_only": true,
+  "created": "2026-11-26T11:42:42-06:00",
+  "device": {
+    "vid": "0x258A",
+    "pid": "0x010C",
+    "interface": 1,
+    "profile": "k87-1980",
+    "product": "KEMOVE K87-1980"
+  },
+  "clean": true,
+  "other_writers": [],
+  "other_writers_end": [],
+  "capture": {
+    "layers": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "macro_size": 4096
+  },
+  "analysis": {
+    "keymaps": {
+      "0": {
+        "esc_ok": true,
+        "matched": 86,
+        "checked": 86,
+        "plausible": 89,
+        "looks_like_keymap": true
+      },
+      "1": {
+        "esc_ok": true,
+        "matched": 86,
+        "checked": 86,
+        "plausible": 89,
+        "looks_like_keymap": true
+      },
+      "2": {
+        "esc_ok": true,
+        "matched": 86,
+        "checked": 86,
+        "plausible": 89,
+        "looks_like_keymap": true
+      },
+      "3": {
+        "esc_ok": true,
+        "matched": 86,
+        "checked": 86,
+        "plausible": 89,
+        "looks_like_keymap": true
+      },
+      "4": {
+        "esc_ok": true,
+        "matched": 86,
+        "checked": 86,
+        "plausible": 89,
+        "looks_like_keymap": true
+      },
+      "5": {
+        "esc_ok": true,
+        "matched": 86,
+        "checked": 86,
+        "plausible": 89,
+        "looks_like_keymap": true
+      },
+      "6": {
+        "esc_ok": true,
+        "matched": 86,
+        "checked": 86,
+        "plausible": 89,
+        "looks_like_keymap": true
+      },
+      "7": {
+        "esc_ok": true,
+        "matched": 86,
+        "checked": 86,
+        "plausible": 89,
+        "looks_like_keymap": true
+      }
+    },
+    "lighting": {
+      "mode": "0x08",
+      "mode_name": "rainbow pulsing + rotating",
+      "brightness": 4,
+      "speed_level": 3,
+      "rainbow": true
+    }
+  },
+  "blocks": {
+    "info": {
+      "read_op": "0x82",
+      "write_op": null,
+      "sub": 1,
+      "size": 6,
+      "file": "info.bin",
+      "sha256": "34795f5a21f4759a3b2417f0d8c31bc447502266e05e480ba7ad1b922dc02292",
+      "restore": "read-only",
+      "hex": "03 00 00 00 00 8e"
+    },
+    "lighting": {
+      "read_op": "0x84",
+      "write_op": "0x04",
+      "sub": 0,
+      "size": 128,
+      "file": "lighting.bin",
+      "sha256": "b8e0c81b9ab82e6f2dfde823954a9243c4097e8c63388271459adc2b916bd7c3",
+      "restore": "supported"
+    },
+    "colour": {
+      "read_op": "0x8A",
+      "write_op": "0x0A",
+      "sub": 0,
+      "size": 420,
+      "file": "colour.bin",
+      "sha256": "92439664ec9333fb5ade3d1d083c051c522fc95b9d2a508ca60a753a5e0977c5",
+      "restore": "supported"
+    },
+    "keymap-layer0": {
+      "read_op": "0x83",
+      "write_op": "0x03",
+      "sub": 0,
+      "size": 504,
+      "file": "keymap-layer0.bin",
+      "sha256": "8f60946662aa4462341bd6c40feab9837a6d0f62c332ffdcc98919e656d89a47",
+      "restore": "layer-0-confirmed"
+    },
+    "keymap-layer1": {
+      "read_op": "0x83",
+      "write_op": "0x03",
+      "sub": 1,
+      "size": 504,
+      "file": "keymap-layer1.bin",
+      "sha256": "8f60946662aa4462341bd6c40feab9837a6d0f62c332ffdcc98919e656d89a47",
+      "restore": "layer-write-unverified"
+    },
+    "keymap-layer2": {
+      "read_op": "0x83",
+      "write_op": "0x03",
+      "sub": 2,
+      "size": 504,
+      "file": "keymap-layer2.bin",
+      "sha256": "8f60946662aa4462341bd6c40feab9837a6d0f62c332ffdcc98919e656d89a47",
+      "restore": "layer-write-unverified"
+    },
+    "keymap-layer3": {
+      "read_op": "0x83",
+      "write_op": "0x03",
+      "sub": 3,
+      "size": 504,
+      "file": "keymap-layer3.bin",
+      "sha256": "8f60946662aa4462341bd6c40feab9837a6d0f62c332ffdcc98919e656d89a47",
+      "restore": "layer-write-unverified"
+    },
+    "keymap-layer4": {
+      "read_op": "0x83",
+      "write_op": "0x03",
+      "sub": 4,
+      "size": 504,
+      "file": "keymap-layer4.bin",
+      "sha256": "8f60946662aa4462341bd6c40feab9837a6d0f62c332ffdcc98919e656d89a47",
+      "restore": "layer-write-unverified"
+    },
+    "keymap-layer5": {
+      "read_op": "0x83",
+      "write_op": "0x03",
+      "sub": 5,
+      "size": 504,
+      "file": "keymap-layer5.bin",
+      "sha256": "8f60946662aa4462341bd6c40feab9837a6d0f62c332ffdcc98919e656d89a47",
+      "restore": "layer-write-unverified"
+    },
+    "keymap-layer6": {
+      "read_op": "0x83",
+      "write_op": "0x03",
+      "sub": 6,
+      "size": 504,
+      "file": "keymap-layer6.bin",
+      "sha256": "8f60946662aa4462341bd6c40feab9837a6d0f62c332ffdcc98919e656d89a47",
+      "restore": "layer-write-unverified"
+    },
+    "keymap-layer7": {
+      "read_op": "0x83",
+      "write_op": "0x03",
+      "sub": 7,
+      "size": 504,
+      "file": "keymap-layer7.bin",
+      "sha256": "8f60946662aa4462341bd6c40feab9837a6d0f62c332ffdcc98919e656d89a47",
+      "restore": "layer-write-unverified"
+    },
+    "macros": {
+      "read_op": "0x85",
+      "write_op": "0x05",
+      "sub": 0,
+      "size": 4096,
+      "file": "macros.bin",
+      "sha256": "ad7facb2586fc6e966c004d7d1d16b024f5805ff7cb47c7a85dabd8b48892ca7",
+      "restore": "blocked-unverified"
+    }
+  },
+  "errors": []
+}
