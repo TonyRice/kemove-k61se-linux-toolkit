@@ -51,7 +51,7 @@ class DeviceProfileTests(unittest.TestCase):
         self.assertEqual(k87.key, "k87-1980")
         self.assertEqual(k61.key, "k61se")
         self.assertFalse(k87.verified)
-        self.assertIsNone(k87.keymap_len)
+        self.assertEqual(k87.keymap_len, 504)
 
     def test_k87se_uses_different_pid(self) -> None:
         profile = identify(info(KEMOVE_VID, 0x0164, "KEMOVE K87SE-1980"))

@@ -19,8 +19,10 @@ device layer:
 - per-model keymap length, LED count, and layout XML;
 - per-model lighting/effect tables where they differ.
 
-The K87-1980 keymap length/layer count is still unverified. Do not enable K87
-writes until a read-only probe and a hardware readback confirm them.
+The K87-1980 keymap read is confirmed: 504 bytes, 126 cells, factory XML
+matches 86/86. The K87 key indices differ from the K61SE (Esc is cell 0; Fn is
+cell 59). Writes and lighting are still unverified, so do not enable K87
+writes until a hardware readback confirms them.
 
 ## 1. Context
 

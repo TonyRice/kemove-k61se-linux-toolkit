@@ -100,6 +100,24 @@ likely to be:
 The first three are enough to make the current scripts behave incorrectly even
 if the frame format is identical.
 
+### K87 keymap is confirmed
+
+The read-only probe succeeded against the connected K87-1980:
+
+- read command `0x83`, declared size `504`;
+- reply body is exactly **504 bytes / 126 four-byte cells**;
+- the K87 XML matches **86/86** non-Fn factory cells;
+- cells 102-125 are zero;
+- Fn is at cell **59** (`0d 00 00 00`);
+- Menu is at cell **65** (`00 00 00 65`);
+- Right Ctrl is at cell **83** (`00 10 00 00`);
+- Esc is at cell **0**, unlike the K61SE where Esc is cell 1 and slot 0 is
+  reserved.
+
+So the K87 uses the same G5KB keymap command and size as the K61SE. The
+difference is the layout/key-index map, which is exactly what model profiles
+are for. Writes and lighting are still unverified.
+
 ## Read-only verification
 
 The probe does not open the device:
@@ -121,10 +139,11 @@ python3 -m kemove.probe --read-keymap --keymap-size 504 --save captures/k87-keym
 reply. It does **not** write a block. Run it with the vendor app closed and only
 the keyboard under test connected.
 
-The K61SE reader assumes 504 bytes (126 four-byte cells). The K87 layout has
-108 possible LED positions (18 × 6), but the keymap block may still be 504
-bytes or may be 432/512 bytes. The probe should settle that before any writer is
-pointed at the K87.
+The K61SE reader assumes 504 bytes (126 four-byte cells). The K87 uses the
+same 504-byte block; the unused cells 102-125 are zero. The K87 layout has 108
+possible LED positions (18 × 6), but the keymap block is 126 cells. Do not
+assume the K87 lighting/colour blocks have the same layout until they are read
+and compared.
 
 ## Modularity
 
@@ -142,11 +161,13 @@ the profile object, then make the CLI wrappers accept `--profile`/auto-detect.
 
 ## Next checks
 
-1. Run `python3 -m kemove.probe --read-keymap --save captures/k87-keymap-probe.bin`
-   with only the K87-1980 connected.
-2. Compare the returned body with the K61SE reset fixture.
-3. Read the K87 lighting block and compare the mode table with the K87 XML.
+1. ~~Read the K87 keymap and confirm the 504-byte block.~~ Done on 2026-11-25.
+2. Read the K87 lighting block and compare the mode table with the K87 XML.
+3. Read the K87 colour block and check whether it is the same 420-byte record
+   layout as the K61SE.
 4. Repeat over the K87 2.4G receiver; if it appears as `3554:FA09`, implement or
    reuse the `CDrv3632` framing.
-5. Only after the read-only checks pass, add K87 write support with the same
+5. Make the keymap CLI profile-aware so it loads the K87 XML and key-index map
+   automatically.
+6. Only after the read-only checks pass, add K87 write support with the same
    pre-write readback and restore guards used by the K61SE tools.

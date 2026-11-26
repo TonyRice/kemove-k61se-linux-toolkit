@@ -44,6 +44,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 import time
 import xml.etree.ElementTree as ET
@@ -117,15 +118,20 @@ EVENT_TYPES = {0: "key", 1: "modifier", 2: "mouse button", 3: "mouse X",
 def load_xml_keys(path: Path = XML_PATH):
     """Return {key_index: [key dicts]} from the vendor XML.
 
-    ``key_index`` is the 1-based keymap cell number and is used directly as the
-    cell index: the wire offset is ``4 * key_index``.  Slot 0 is reserved; the
-    older app readback had a duplicate Esc there, which is why this is not
-    ``key_index - 1``.  Duplicate labels (Shift/Ctrl/Alt) are preserved as
-    multiple entries.
+    ``key_index`` is used directly as the keymap cell number: the wire offset
+    is ``4 * key_index``.  K61SE reserves slot 0 and puts Esc in slot 1; the
+    K87 XML puts Esc in slot 0.  Duplicate labels (Shift/Ctrl/Alt) are
+    preserved as multiple entries.
+
+    Some vendor layouts are not well-formed XML (for example the K87 file has
+    ``"1"custom_light=`` with no space).  Insert the missing separator before
+    parsing rather than carrying a local patched copy of the vendor file.
     """
     if not path.exists():
         raise RuntimeError(f"missing key map: {path}")
-    root = ET.parse(path).getroot()
+    text = path.read_text(encoding="utf-8", errors="replace")
+    text = re.sub(r'"([A-Za-z_][\w:-]*)=', r'" \1=', text)
+    root = ET.fromstring(text)
     keys: dict[int, list[dict]] = {}
     for elem in root.iter("key"):
         try:
@@ -216,22 +222,27 @@ def keymap_report(body: bytes, keys: dict[int, list[dict]]):
     cells = []
     for idx in range((len(body) // 4) if len(body) >= 4 else 0):
         code = bytes(body[4 * idx:4 * idx + 4])
+        entries = keys.get(idx, [])
         cells.append(
             {
                 "index": idx,
                 "label": (
-                    "slot 0 (reserved)"
-                    if idx == 0
-                    else " / ".join(k["name"] for k in keys.get(idx, []))
+                    " / ".join(k["name"] for k in entries)
+                    if entries
+                    else ("slot 0 (reserved)" if idx == 0 else "")
                 ),
                 "code": code,
                 "summary": describe_code(code),
             }
         )
 
-    # key_index 1 is the physical Esc.  Slot 0 is reserved; the older app
-    # readback had a duplicate Esc there, but the reset snapshot leaves it zero.
-    esc_ok = len(body) >= 8 and bytes(body[4:8]) == b"\x00\x00\x00\x29"
+    # K61SE has Esc in slot 1 and slot 0 reserved; the K87 layout has Esc in
+    # slot 0.  Accept either so the same decoder works for both.
+    esc_ok = any(
+        len(body) >= (cell + 1) * 4
+        and bytes(body[cell * 4 : cell * 4 + 4]) == b"\x00\x00\x00\x29"
+        for cell in (0, 1)
+    )
     checked = matched = 0
     for idx, entries in keys.items():
         if idx >= len(cells):
@@ -264,7 +275,7 @@ def print_keymap(body: bytes, keys, layer: int, full: bool = False):
     report = keymap_report(body, keys)
     print(f"\nKeymap layer {layer}: {len(body)} bytes, {len(report['cells'])} cells")
     print(
-        "  Esc(1)=%s, factory XML matches %d/%d, plausible cells %d, looks like keymap: %s"
+        "  Esc(0/1)=%s, factory XML matches %d/%d, plausible cells %d, looks like keymap: %s"
         % (
             "OK" if report["esc_ok"] else "not 00 00 00 29",
             report["matched"],

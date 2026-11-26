@@ -309,8 +309,10 @@ def keymap_diff(before: bytes, after: bytes, keys):
             continue
         index = offset // 4
         entries = keys.get(index, [])
-        label = "slot 0 (reserved)" if index == 0 else " / ".join(
-            entry["name"] for entry in entries
+        label = (
+            " / ".join(entry["name"] for entry in entries)
+            if entries
+            else ("slot 0 (reserved)" if index == 0 else "")
         )
         changes.append(
             {
