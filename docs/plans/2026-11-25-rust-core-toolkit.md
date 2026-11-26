@@ -32,7 +32,7 @@ unverified; do not enable K87 writes until hardware readback confirms them.
 The current toolkit is a Python project with a flat set of scripts:
 
 - Device transport and protocol: `k61se_dev.py`
-- Keymap: `k61se_keymap.py`
+- Keymap: `kemove_keymap.py`
 - Macros: `k61se_macro.py`, `k61se_macro_write.py`
 - Snapshots: `k61se_snapshot.py`
 - Sticky arrow daemon: `k61se_arrows.py`
@@ -257,7 +257,7 @@ useful.
 |---|---|---|
 | `k61se_dev.py` | `k61se-core::device`, `protocol::frame` | 1 |
 | `k61se_layout.py` | `k61se-core::protocol::layout` | 1 |
-| `k61se_keymap.py` | `k61se-core::protocol::keymap` | 1 |
+| `kemove_keymap.py` | `k61se-core::protocol::keymap` | 1 |
 | `k61se_macro.py` | `k61se-core::protocol::macro` | 2 |
 | `k61se_macro_write.py` | `k61se-core::protocol::macro` | 2 |
 | `k61se_snapshot.py` | `k61se-core::snapshot` | 2 |

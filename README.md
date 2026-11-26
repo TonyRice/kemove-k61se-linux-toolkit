@@ -24,19 +24,25 @@ python3 -m kemove.probe --read-all --save-dir evidence/captures/k87-probe
 # Read-only lighting/colour inspection
 python3 -m kemove.lighting_cli read --profile k87-1980
 python3 -m kemove.lighting_cli read --profile k87-1980 --save-dir evidence/captures/k87-live
+
+# Lighting change: dry-run first, then an explicit verified write
+python3 -m kemove.lighting_cli set --profile k87-1980 --brightness 3 --dry-run
+python3 -m kemove.lighting_cli set --profile k87-1980 --brightness 3 --yes --force
+python3 -m kemove.lighting_cli set --profile k87-1980 \
+  --restore evidence/captures/k87-before/lighting.bin --yes --force
 ```
 
 The probe is the safe first step for a new model: it reports the exact product
 string, VID/PID, interface, and usage page. Product-string matching matters
 because the K61SE, K87-1980, K68SE, and K98-1980 share `258A:010C`.
 
-`k61se_keymap.py` and `k61se_macro.py` auto-detect one connected keyboard and
+`kemove_keymap.py` and `k61se_macro.py` auto-detect one connected keyboard and
 also accept `--profile`:
 
 ```bash
-python3 k61se_keymap.py --read
-python3 k61se_keymap.py --profile k87-1980 --read
-python3 k61se_keymap.py --profile k87-1980 \
+python3 kemove_keymap.py --read
+python3 kemove_keymap.py --profile k87-1980 --read
+python3 kemove_keymap.py --profile k87-1980 \
   --base-file evidence/captures/k87-probe/keymap.bin --set A=B --dry-run
 ```
 
@@ -71,7 +77,7 @@ python3 k61se_typing.py --seconds 60
 python3 k61se_macro.py --probe
 
 # Read-only keymap decode
-python3 k61se_keymap.py --read
+python3 kemove_keymap.py --read
 
 # Read-only full-state snapshot (lighting, colour, keymaps, macros, info)
 python3 k61se_snapshot.py --capture evidence/captures/reset-before
@@ -89,8 +95,8 @@ python3 k61se_macro_write.py --name test1 --text abc --dry-run
 python3 k61se_macro_write.py --name test1 --text abc --yes
 
 # Bind macro index 0 to the Menu key, then restore it
-python3 k61se_keymap.py --set 'Menu=macro:0' --yes
-python3 k61se_keymap.py --set 'Menu=Menu' --yes
+python3 kemove_keymap.py --set 'Menu=macro:0' --yes
+python3 kemove_keymap.py --set 'Menu=Menu' --yes
 
 # One-time permission setup for the host-side arrow daemon
 ./install_udev.sh
@@ -99,11 +105,11 @@ python3 k61se_keymap.py --set 'Menu=Menu' --yes
 python3 -B k61se_arrows.py
 
 # Offline remap dry-run: no device access with --base-file
-python3 k61se_keymap.py --set Space=B --dry-run \
+python3 kemove_keymap.py --set Space=B --dry-run \
   --base-file evidence/captures/keymap-reset.bin
 
 # Explicit restore of the captured factory keymap (overwrites all remaps)
-python3 k61se_keymap.py --restore-stock --yes
+python3 kemove_keymap.py --restore-stock --yes
 ```
 
 `Ctrl-C` restores the captured lighting block. The `0x08` lighting frame is a
@@ -137,7 +143,7 @@ with `sudo python3 -B k61se_arrows.py`.
 | `k61se_macro.py` | Read-only keymap/macro probe and offline decoder; no config writes. |
 | `k61se_macro_write.py` | One-shot F75-layout macro payload write + readback; no key binding. |
 | `k61se_arrows.py` | Host-side sticky arrow layer: double-tap CapsLock to remap the four Fn-arrow keys. |
-| `k61se_keymap.py` | Explicit keymap read/remap/restore; pre-write dump and verified readback. |
+| `kemove_keymap.py` | Explicit keymap read/remap/restore; pre-write dump and verified readback. |
 | `k61se_snapshot.py` | Full-state snapshots/diffs plus explicit verified restore; macros skipped. |
 | `k61se_invaders.py` | Invaders-style animation demo. |
 | `k61se_power.py` | Mode/power control and recovery helpers. |
@@ -147,7 +153,7 @@ with `sudo python3 -B k61se_arrows.py`.
 
 - `app/K61SE-keyboard.xml` — authoritative key names, HID codes and `row_col`.
 - `evidence/captures/keymap-reset.bin` — canonical 504-byte Fn+Tab reset keymap used by
-  `k61se_keymap.py --restore-stock`. `evidence/captures/keymap-stock.bin` is the older
+  `kemove_keymap.py --restore-stock`. `evidence/captures/keymap-stock.bin` is the older
   app readback and is kept for comparison.
 - `evidence/captures/golden-reset/` — verified Fn+Tab reset snapshot used by
   `k61se_snapshot.py --restore`.

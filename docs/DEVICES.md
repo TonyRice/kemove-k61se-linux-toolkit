@@ -179,10 +179,10 @@ The keymap and macro tools now auto-detect one connected keyboard, and accept
 an explicit profile when more than one is attached:
 
 ```bash
-python3 k61se_keymap.py --read
-python3 k61se_keymap.py --profile k87-1980 --read
+python3 kemove_keymap.py --read
+python3 kemove_keymap.py --profile k87-1980 --read
 python3 k61se_macro.py --probe --profile k87-1980
-python3 k61se_keymap.py --profile k87-1980 \
+python3 kemove_keymap.py --profile k87-1980 \
   --base-file evidence/captures/k87-probe/keymap.bin --set A=B --dry-run
 ```
 
@@ -221,7 +221,7 @@ The new `kemove/` package is the start of the model-aware layer:
   `tests/test_snapshot.py`, and `tests/test_k87_blocks.py` verify profile and
   block behaviour without hardware.
 
-`k61se_keymap.py` and `k61se_macro.py` are now profile-aware: they auto-detect
+`kemove_keymap.py` and `k61se_macro.py` are now profile-aware: they auto-detect
 a single connected keyboard, accept `--profile k61se|k87-1980`, and load the
 profile's layout XML. K87 writes are gated behind `--force` until hardware
 round-trip tests are complete; dry-run keymap edits are allowed.
@@ -241,10 +241,12 @@ still use the K61SE path until their write guards are wired.
    key-index map automatically.~~ Done.
 5. ~~Add profile-aware snapshot capture/restore and read-only lighting/colour
    inspection.~~ Done; K87 writes are still gated.
-6. Add a K87 keymap write test on a non-arrow key with pre-write readback and
+6. Test the K87 lighting write path with `kemove.lighting_cli set`; a
+   brightness-only change is the smallest safe test.
+7. Add a K87 keymap write test on a non-arrow key with pre-write readback and
    restore.
-7. Add a K87 lighting/colour read-modify-write test using the new palette codec.
-8. Repeat over the K87 2.4G receiver; if it appears as `3554:FA09`, implement or
+8. Add a K87 colour/palette write test using the new palette codec.
+9. Repeat over the K87 2.4G receiver; if it appears as `3554:FA09`, implement or
    reuse the `CDrv3632` framing.
-9. Only after those pass, enable K87 write support with the same pre-write
-   readback and restore guards used by the K61SE tools.
+10. Only after those pass, enable K87 write support with the same pre-write
+    readback and restore guards used by the K61SE tools.

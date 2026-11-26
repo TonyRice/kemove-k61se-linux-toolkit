@@ -14,7 +14,7 @@ The capture covers the blocks needed for a golden-reset comparison:
     keymap     0x83            504 B       one body per layer (0..7)
     macros     0x85          <=4096 B      one table/blob block
 
-The keymap body is the same one written by ``k61se_keymap.py``.  Snapshot
+The keymap body is the same one written by ``kemove_keymap.py``.  Snapshot
 restore records macros but does not write them; a validated one-shot macro
 payload writer lives in ``k61se_macro_write.py``.  Keymap layer 0 is the
 hardware-confirmed K61SE write; other layers need ``--force`` and are written

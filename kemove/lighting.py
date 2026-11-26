@@ -72,6 +72,52 @@ def slot_bytes(body: bytes, mode: int) -> tuple[int, int] | None:
     return body[offset], body[offset + 1]
 
 
+def edit_lighting(
+    body: bytes,
+    *,
+    mode: int | None = None,
+    brightness: int | None = None,
+    speed: int | None = None,
+    rainbow: bool | None = None,
+) -> bytes:
+    """Return a copy of a lighting block with the requested fields changed.
+
+    This is a pure operation; it never writes to a device.  The brightness
+    range is deliberately broad (0-9) because the K61SE and K87 tables differ;
+    the caller's profile/CLI decides the safe range for a test.
+    """
+    validate_lighting(body)
+    out = bytearray(body)
+    active_mode = out[MODE_OFFSET] if mode is None else int(mode)
+    if not 0 <= active_mode <= 255:
+        raise ValueError(f"mode out of range: {active_mode}")
+    if mode is not None:
+        out[MODE_OFFSET] = active_mode
+
+    slot = effect_slot_offset(active_mode)
+    if slot is None:
+        if any(value is not None for value in (brightness, speed, rainbow)):
+            raise ValueError(f"mode 0x{active_mode:02X} has no parameter slot")
+        return bytes(out)
+
+    if brightness is not None:
+        if not 0 <= int(brightness) <= 9:
+            raise ValueError(f"brightness out of range: {brightness}")
+        out[slot] = int(brightness)
+
+    if speed is not None and not 1 <= int(speed) <= 5:
+        raise ValueError(f"speed out of range: {speed}")
+
+    low = out[slot + 1] & 0x0F
+    if rainbow is not None:
+        low = 0x07 if rainbow else 0x00
+    if speed is not None or rainbow is not None:
+        level = (out[slot + 1] >> 4) if speed is None else int(speed)
+        out[slot + 1] = (level << 4) | low
+
+    return bytes(out)
+
+
 def lighting_state(body: bytes) -> LightingState:
     validate_lighting(body)
     mode = body[MODE_OFFSET]

@@ -18,15 +18,15 @@ assuming K61SE indices.
 
 Examples (the dry-run examples do not open the keyboard):
 
-    python3 k61se_keymap.py --read
-    python3 k61se_keymap.py --profile k87-1980 --read
-    python3 k61se_keymap.py --list-keys
-    python3 k61se_keymap.py --list-actions
-    python3 k61se_keymap.py --restore-stock --dry-run
-    python3 k61se_keymap.py --set Space=B --dry-run \\
+    python3 kemove_keymap.py --read
+    python3 kemove_keymap.py --profile k87-1980 --read
+    python3 kemove_keymap.py --list-keys
+    python3 kemove_keymap.py --list-actions
+    python3 kemove_keymap.py --restore-stock --dry-run
+    python3 kemove_keymap.py --set Space=B --dry-run \\
         --base-file evidence/captures/keymap-reset.bin
-    python3 k61se_keymap.py --set Alt@17="Left Alt" --yes
-    python3 k61se_keymap.py --restore-stock --yes
+    python3 kemove_keymap.py --set Alt@17="Left Alt" --yes
+    python3 kemove_keymap.py --restore-stock --yes
 
 K61SE writes always save a pre-write readback, send the full block, read it
 back, and compare.  K87 writes are disabled unless ``--force`` is supplied

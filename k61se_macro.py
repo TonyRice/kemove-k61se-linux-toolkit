@@ -2,7 +2,7 @@
 """Read-only keymap and macro inspector for KEMOVE keyboards.
 
 This is deliberately a **read-only** tool.  The keymap write/read pair is now
-hardware-confirmed and lives in ``k61se_keymap.py``.  One F75-style macro payload
+hardware-confirmed and lives in ``kemove_keymap.py``.  One F75-style macro payload
 has been written and read back in ``k61se_macro_write.py``; playback and key
 binding are still being tested.  This program itself cannot write any config
 block.

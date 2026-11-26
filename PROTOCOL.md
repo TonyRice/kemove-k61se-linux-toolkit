@@ -533,8 +533,8 @@ The later Fn+Tab snapshot in `evidence/captures/golden-reset/` supersedes the ap
 readback as the canonical reset baseline: it has Fn at cell 83 and the
 duplicate `\` at reserved cell 75. Its raw layer-0 body is saved as
 `evidence/captures/keymap-reset.bin`. Use
-`python3 k61se_keymap.py --restore-stock --yes` to put that body back, with
-the pre/post evidence described in the `k61se_keymap.py` tool section (§7).
+`python3 kemove_keymap.py --restore-stock --yes` to put that body back, with
+the pre/post evidence described in the `kemove_keymap.py` tool section (§7).
 
 ### Keymap (`0x03` / `0x83`)
 
@@ -699,9 +699,9 @@ choice; `macro:0` is the first macro even though the decoder labels it
 “Macro 1”:
 
 ```bash
-python3 k61se_keymap.py --set 'Menu=macro:0' --yes
+python3 kemove_keymap.py --set 'Menu=macro:0' --yes
 # press Menu in a text editor: it should type "abc"
-python3 k61se_keymap.py --set 'Menu=Menu' --yes
+python3 kemove_keymap.py --set 'Menu=Menu' --yes
 ```
 
 The keymap cell becomes `03 01 01 00` (type 3, mode 1, count 1, index 0).
@@ -1176,23 +1176,23 @@ python3 k61se_macro.py --decode-macros evidence/captures/macro-probe/macros-4096
 - The protocol is recovered statically (§5b). If the probe shows no keymap,
   do not assume the command is wrong first: check that another program is not
   consuming report 6, then retry. The confirmed `0x03` write path lives in
-  `k61se_keymap.py`; this probe stays read-only.
+  `kemove_keymap.py`; this probe stays read-only.
 
-### `k61se_keymap.py` — explicit keymap read/remap/restore
+### `kemove_keymap.py` — explicit keymap read/remap/restore
 
 ```bash
 # Read-only decode of the live keymap
-python3 k61se_keymap.py --read
+python3 kemove_keymap.py --read
 
 # Offline: decode a saved body, or show a remap without touching the device
-python3 k61se_keymap.py --read --base-file evidence/captures/keymap-reset.bin
-python3 k61se_keymap.py --set Space=B --dry-run \
+python3 kemove_keymap.py --read --base-file evidence/captures/keymap-reset.bin
+python3 kemove_keymap.py --set Space=B --dry-run \
   --base-file evidence/captures/keymap-reset.bin
 
 # Explicit writes: require --yes and read back
-python3 k61se_keymap.py --set Space=B --yes
-python3 k61se_keymap.py --set Alt@17="Left Alt" --yes
-python3 k61se_keymap.py --restore-stock --yes
+python3 kemove_keymap.py --set Space=B --yes
+python3 kemove_keymap.py --set Alt@17="Left Alt" --yes
+python3 kemove_keymap.py --restore-stock --yes
 ```
 
 - Separate from `k61se_macro.py` on purpose. This is the only tool with a
@@ -1677,7 +1677,7 @@ steps:
    reads 4096 zero bytes, so the reset state has no macro table. The first
    non-empty table should still start with `4 * N`.
 4. ~~Implement a separate explicit keymap write.~~ Done in
-   `k61se_keymap.py` (`0x03`, 0x1F8, sub=0): read-modify-write, `--yes`,
+   `kemove_keymap.py` (`0x03`, 0x1F8, sub=0): read-modify-write, `--yes`,
    pre-write dump, post-write readback, and a JSON diff. It is intentionally
    separate from the lighting tools and `k61se_macro.py`.
 5. ~~Build and validate the first macro writer.~~ The 2026-10-20

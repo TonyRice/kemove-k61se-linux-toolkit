@@ -9,6 +9,7 @@ from kemove.lighting import (
     SINGLE,
     decode_colour_block,
     decode_colour_record,
+    edit_lighting,
     encode_colour_record,
     lighting_state,
     validate_colour,
@@ -82,6 +83,32 @@ class LightingTests(unittest.TestCase):
     def test_unknown_colour_format_is_rejected(self) -> None:
         with self.assertRaises(ValueError):
             decode_colour_block(self.k87_colour, "nope")
+
+    def test_edit_lighting_changes_only_the_target_slot(self) -> None:
+        before = self.k87_light
+        after = edit_lighting(before, brightness=3)
+        state_before = lighting_state(before)
+        state_after = lighting_state(after)
+        self.assertEqual(state_before.speed_level, state_after.speed_level)
+        self.assertEqual(state_before.rainbow, state_after.rainbow)
+        self.assertEqual(state_after.brightness, 3)
+        changed = [i for i, (a, b) in enumerate(zip(before, after)) if a != b]
+        self.assertEqual(changed, [0x48])
+
+    def test_edit_lighting_speed_and_rainbow(self) -> None:
+        after = edit_lighting(self.k87_light, speed=5, rainbow=False)
+        state = lighting_state(after)
+        self.assertEqual(state.speed_level, 5)
+        self.assertFalse(state.rainbow)
+        self.assertEqual(state.brightness, 4)
+
+    def test_edit_lighting_rejects_bad_values(self) -> None:
+        with self.assertRaises(ValueError):
+            edit_lighting(self.k87_light, brightness=10)
+        with self.assertRaises(ValueError):
+            edit_lighting(self.k87_light, speed=0)
+        with self.assertRaises(ValueError):
+            edit_lighting(self.k87_light, mode=0, brightness=1)
 
 
 if __name__ == "__main__":
