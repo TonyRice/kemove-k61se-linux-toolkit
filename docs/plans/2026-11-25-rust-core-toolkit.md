@@ -4,6 +4,24 @@
 **Date:** 2026-11-25  
 **Repository:** `TonyRice/kemove-k61se-linux-toolkit`
 
+## 0. Multi-device update (2026-11-25)
+
+The K87-1980 is now part of the target set. It shares `258A:010C` with the
+K61SE, so the product string must be part of device selection. A read-only HID
+inventory sees the K87-1980 as interface 1 with product string
+`KEMOVE K87-1980`; see `docs/DEVICES.md` and `kemove/devices.py`.
+
+This changes the core requirement from “one K61SE device” to a profile-based
+device layer:
+
+- VID/PID + product-string matching;
+- G5KB wired transport and CDrv3632 2.4G transport;
+- per-model keymap length, LED count, and layout XML;
+- per-model lighting/effect tables where they differ.
+
+The K87-1980 keymap length/layer count is still unverified. Do not enable K87
+writes until a read-only probe and a hardware readback confirm them.
+
 ## 1. Context
 
 The current toolkit is a Python project with a flat set of scripts:

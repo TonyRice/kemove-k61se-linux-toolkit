@@ -1,11 +1,29 @@
-# K61SE Linux control
+# KEMOVE K61SE/K87 Linux control
 
-Host-side tools for the KEMOVE K61SE keyboard (`258A:010C`). The protocol was
-reverse-engineered from USB captures of the vendor app; see `PROTOCOL.md`.
+Host-side tools for KEMOVE keyboards on Linux. The K61SE (`258A:010C`) is the
+verified target; the K87-1980 (`258A:010C`) and K87SE-1980 (`258A:0164`) are
+provisional profiles while their keymap/lighting blocks are measured. The
+protocol was reverse-engineered from USB captures of the vendor app; see
+`PROTOCOL.md` and `docs/DEVICES.md`.
 
 Close the vendor app before running a lighting or keymap writer. One writer at
 a time: the app keeps re-asserting its own state and will fight the host-side
 tools.
+
+## Device inventory
+
+```bash
+# Read-only: does not open the keyboard
+python3 -m kemove.probe
+python3 -m kemove.probe --json
+
+# Read-only keymap probe for a recognised wired G5KB device
+python3 -m kemove.probe --read-keymap
+```
+
+The probe is the safe first step for a new model: it reports the exact product
+string, VID/PID, interface, and usage page. Product-string matching matters
+because the K61SE, K87-1980, K68SE, and K98-1980 share `258A:010C`.
 
 ## Quick start
 
