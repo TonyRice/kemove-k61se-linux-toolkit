@@ -31,8 +31,8 @@ Macro body: ``N * [addr u16, size u16]`` followed by N blobs.  Each blob is
 
 Examples (the first two need no keyboard):
 
-    python3 k61se_macro.py --decode-keymap dumps/keymap-layer0.bin
-    python3 k61se_macro.py --decode-macros dumps/macros-512.bin
+    python3 k61se_macro.py --decode-keymap evidence/dumps/keymap-layer0.bin
+    python3 k61se_macro.py --decode-macros evidence/dumps/macros-512.bin
     python3 k61se_macro.py --probe
     python3 k61se_macro.py --probe --layers 0,1,2,3 --macro-size 512 --save
     python3 k61se_macro.py --echo-test
@@ -749,8 +749,8 @@ def main(argv=None):
                         help="show all 126 keymap cells instead of physical keys only")
     parser.add_argument("--save", action="store_true",
                         help="save raw bodies and probe.json under --save-dir")
-    parser.add_argument("--save-dir", default="captures/macro-probe",
-                        help="directory for --save (default captures/macro-probe)")
+    parser.add_argument("--save-dir", default="evidence/captures/macro-probe",
+                        help="directory for --save (default evidence/captures/macro-probe)")
     parser.add_argument("--decode-keymap", metavar="FILE",
                         help="decode a saved 0x1F8 keymap body (no device access)")
     parser.add_argument("--decode-macros", metavar="FILE",

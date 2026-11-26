@@ -80,7 +80,7 @@ wine app/DeviceDriver.exe
 ```
 
 Only one process may hold the lighting interface. The app and
-`k61se_gui.py`/`dump_lighting.py` must not write at the same time, and a
+`k61se_gui.py`/`research/dump_lighting.py` must not write at the same time, and a
 `winedevice.exe` left behind by a crash can still hold the node:
 
 ```bash

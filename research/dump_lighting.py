@@ -32,7 +32,7 @@ Usage
   sudo python3 dump_lighting.py --sweep --full          # + full hexdump per op
   sudo python3 dump_lighting.py --sweep 0x00-0x3F --sub 1
 
-  --save [LABEL]   write each block body to dumps/<block>_<timestamp>[_<label>].bin
+  --save [LABEL]   write each block body to evidence/dumps/<block>_<timestamp>[_<label>].bin
                    and diff it against the previous dump of that block. A token
                    right after --save is the label unless it is a block name.
                    Saves never overwrite: a second save in the same second gets
@@ -71,6 +71,12 @@ Usage
   --label PREFIX   in watch mode, prefix each auto label (e.g. --label theme
                    gives theme_m02pulse_rgb).
 """
+import sys
+from pathlib import Path
+ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 import glob
 import hashlib
 import os
@@ -85,7 +91,7 @@ PRODUCT_ID = 0x010C
 REPORT_ID = 0x06
 REPORT_LEN = 520
 
-DUMP_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dumps")
+DUMP_DIR = str(ROOT / "evidence" / "dumps")
 
 # opcode (without the 0x80 read bit) -> (name, size, sub)
 KNOWN_BLOCKS = {
@@ -175,7 +181,7 @@ def block_name(op):
 # dumps
 # --------------------------------------------------------------------------- #
 def dump_path(name, label=None):
-    """dumps/<name>_<timestamp>[_<label>][_<n>].bin — never overwrites."""
+    """evidence/dumps/<name>_<timestamp>[_<label>][_<n>].bin — never overwrites."""
     stem = f"{name}_{time.strftime('%Y%m%d_%H%M%S')}" + (f"_{label}" if label else "")
     path = os.path.join(DUMP_DIR, stem + ".bin")
     n = 2
@@ -581,7 +587,7 @@ def watch_manual(jobs, prefix=None):
 # app walk: one read per app click, both renderings of every effect
 # --------------------------------------------------------------------------- #
 WALK_BLOCKS = ((0x84, 128, 0, "lighting"), (0x8A, 420, 0, "colour"))
-WALK_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "app_effect_walk.md")
+WALK_PATH = str(ROOT / "docs" / "research" / "app_effect_walk.md")
 
 
 def _walk_snapshot():
@@ -725,7 +731,7 @@ def _walk_report(rows, path=None, log=print):
         "`sudo python3 dump_lighting.py --app-walk`.",
         "",
         "The vendor app was the only writer. Each snapshot is one read of the",
-        "lighting and colour blocks taken right after the click, saved in `dumps/`",
+        "lighting and colour blocks taken right after the click, saved in `evidence/dumps/`",
         "as `<block>_<timestamp>_app_<mode>_<effect>_colourful.bin` and `..._single.bin`.",
         "",
         "| mode | effect | colourful slot | colour off slot | colour record | verdict |",

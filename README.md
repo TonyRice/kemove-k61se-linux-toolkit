@@ -19,7 +19,7 @@ python3 -m kemove.probe --json
 
 # Read-only keymap/lighting/colour probe for a recognised wired G5KB device
 python3 -m kemove.probe --read-keymap
-python3 -m kemove.probe --read-all --save-dir captures/k87-probe
+python3 -m kemove.probe --read-all --save-dir evidence/captures/k87-probe
 ```
 
 The probe is the safe first step for a new model: it reports the exact product
@@ -33,11 +33,23 @@ also accept `--profile`:
 python3 k61se_keymap.py --read
 python3 k61se_keymap.py --profile k87-1980 --read
 python3 k61se_keymap.py --profile k87-1980 \
-  --base-file captures/k87-probe/keymap.bin --set A=B --dry-run
+  --base-file evidence/captures/k87-probe/keymap.bin --set A=B --dry-run
 ```
 
 K87 writes are read-only/dry-run until the hardware round-trip checks are
 finished.
+
+## Repository layout
+
+| Directory | Purpose |
+|---|---|
+| `kemove/` | Shared profiles, discovery, colour codecs, read-only probe |
+| `k61se_*.py` | Daily runtime tools and the verified K61SE implementation |
+| `research/` | Capture, dump, and reverse-engineering scripts |
+| `evidence/` | Local captures and dumps; only canonical fixtures are tracked |
+| `docs/` | Protocol/device notes and plans |
+| `archive/` | Old one-off experiments, not imported by current tools |
+| `app/` | Vendor app binaries (ignored) plus the keyboard XML layout |
 
 ## Quick start
 
@@ -58,13 +70,13 @@ python3 k61se_macro.py --probe
 python3 k61se_keymap.py --read
 
 # Read-only full-state snapshot (lighting, colour, keymaps, macros, info)
-python3 k61se_snapshot.py --capture captures/reset-before
+python3 k61se_snapshot.py --capture evidence/captures/reset-before
 # Now hold Fn + Tab for 5 seconds, then:
-python3 k61se_snapshot.py --capture captures/reset-after
-python3 k61se_snapshot.py --diff captures/reset-before captures/reset-after
+python3 k61se_snapshot.py --capture evidence/captures/reset-after
+python3 k61se_snapshot.py --diff evidence/captures/reset-before evidence/captures/reset-after
 
 # Explicit golden-reset restore: lighting, colour, keymap layer 0
-python3 k61se_snapshot.py --restore captures/golden-reset --yes
+python3 k61se_snapshot.py --restore evidence/captures/golden-reset --yes
 
 # One-shot macro payload validation
 python3 k61se_macro_write.py --name test1 --text abc --dry-run
@@ -82,7 +94,7 @@ python3 -B k61se_arrows.py
 
 # Offline remap dry-run: no device access with --base-file
 python3 k61se_keymap.py --set Space=B --dry-run \
-  --base-file captures/keymap-reset.bin
+  --base-file evidence/captures/keymap-reset.bin
 
 # Explicit restore of the captured factory keymap (overwrites all remaps)
 python3 k61se_keymap.py --restore-stock --yes
@@ -128,18 +140,18 @@ with `sudo python3 -B k61se_arrows.py`.
 ## Required data
 
 - `app/K61SE-keyboard.xml` — authoritative key names, HID codes and `row_col`.
-- `captures/keymap-reset.bin` — canonical 504-byte Fn+Tab reset keymap used by
-  `k61se_keymap.py --restore-stock`. `captures/keymap-stock.bin` is the older
+- `evidence/captures/keymap-reset.bin` — canonical 504-byte Fn+Tab reset keymap used by
+  `k61se_keymap.py --restore-stock`. `evidence/captures/keymap-stock.bin` is the older
   app readback and is kept for comparison.
-- `captures/golden-reset/` — verified Fn+Tab reset snapshot used by
+- `evidence/captures/golden-reset/` — verified Fn+Tab reset snapshot used by
   `k61se_snapshot.py --restore`.
 - `designs/` — static key art and music-design JSON.
 - `presets/` — saved lighting/colour block presets.
 - `.k61se_state.json` — last drawable mode used by `k61se_power.py`.
 
 The public repository tracks the source, docs, `app/K61SE-keyboard.xml`, and the
-two small reset fixtures above. The vendor app binaries, the full `captures/`
-archive, `dumps/`, and `.k61se_state.json` stay local and are Git-ignored. A
+two small reset fixtures above. The vendor app binaries, the full `evidence/captures/`
+archive, `evidence/dumps/`, and `.k61se_state.json` stay local and are Git-ignored. A
 fresh clone still runs the runtime tools; only the Wine/vendor-app workflows
 and the full raw evidence archive need the local files.
 
@@ -148,17 +160,18 @@ and the full raw evidence archive need the local files.
 These are useful for protocol work but not required to run the daily tools:
 
 - `PROTOCOL.md` — full reverse-engineered protocol.
-- `colour_records.md`, `colour_mode_audit.md`, `app_effect_walk.md` — colour
+- `docs/research/colour_records.md`, `docs/research/colour_mode_audit.md`, `docs/research/app_effect_walk.md` — colour
   and effect analysis.
-- `KBAccess_notes.txt` — original vendor-access notes.
-- `WINE.md` — running the Windows vendor app under Wine.
-- `captures/` — local raw USB captures, indexed by `captures/SESSION_INDEX.md`.
-  Only `golden-reset/`, `keymap-reset.bin`, `keymap-stock.bin`, and the index
-  are tracked.
-- `dumps/` — local 128-byte lighting and 420-byte colour block snapshots; not
+- `docs/research/KBAccess_notes.txt` — original vendor-access notes.
+- `docs/research/WINE.md` — running the Windows vendor app under Wine.
+- `evidence/captures/` — local raw USB captures, indexed by `evidence/captures/SESSION_INDEX.md`.
+  Only `golden-reset/`, `k87-probe/`, `keymap-reset.bin`, `keymap-stock.bin`,
+  and the index are tracked.
+- `evidence/dumps/` — local 128-byte lighting and 420-byte colour block snapshots; not
   tracked.
-- `dump_lighting.py`, `review_captures.py`, `review_dumps.py`, `sniffer.py`,
-  `snoop_session.py`, `read_desc.py`, `payloads.py` — read-only research tools.
+- `research/dump_lighting.py`, `research/review_captures.py`,
+  `research/review_dumps.py`, `research/sniffer.py`, `research/snoop_session.py`,
+  `research/read_desc.py`, `research/payloads.py` — read-only research tools.
 - `k61se_music_audio.sh` — PipeWire loopback for the vendor app's music mode.
 
 On this machine `app/` also contains the extracted vendor app (`.exe`, DLLs,
@@ -166,7 +179,7 @@ skins, layouts, language files), but those binaries are Git-ignored. The Linux
 tools only need `app/K61SE-keyboard.xml`; keep the rest locally if you still
 want to run the app under Wine.
 
-`attic/` contains old one-off HID probes from the first reverse-engineering
+`archive/attic/` contains old one-off HID probes from the first reverse-engineering
 sessions. They are not imported by the current tools and are safe to delete.
 
 ## Housekeeping
@@ -176,8 +189,8 @@ root:
 
 ```bash
 sudo rm -rf __pycache__
-sudo chown -R "$USER:$USER" dumps
+sudo chown -R "$USER:$USER" evidence/dumps
 ```
 
-The first is only a generated bytecode cache. The second lets `dump_lighting.py
---save` write new evidence files without `sudo`.
+The first is only a generated bytecode cache. The second lets `research/dump_lighting.py --save` write new evidence files
+without `sudo`.

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """KEMOVE K61SE backlight power + effect mode over USB HID (Linux).
 
-Reverse-engineered from captures (see captures/lighting_off_on/ and the
-per-mode dumps in dumps/):
+Reverse-engineered from captures (see evidence/captures/lighting_off_on/ and the
+per-mode dumps in evidence/dumps/):
 
     report 6, 520-byte feature report
     frame:  06 | op | sub | 00 | chunks=01 | index=00 | size_lo | size_hi | <size>

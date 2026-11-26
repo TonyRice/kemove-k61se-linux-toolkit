@@ -10,8 +10,8 @@ Report 6 is 520 bytes and carries one block at a time:
 Lighting, colour, and keymap blocks use one chunk (`chunks=01, index=00`).
 Large macro blocks use several chunks; `read_body_chunks()` drives that path.
 
-That is not a guess: `captures/color_red/` holds the vendor app's own writes and
-its 420-byte colour payload is byte-identical to `dumps/colour_*_red.bin`, and
+That is not a guess: `evidence/captures/color_red/` holds the vendor app's own writes and
+its 420-byte colour payload is byte-identical to `evidence/dumps/colour_*_red.bin`, and
 its 128-byte lighting payload matches ours up to the effect settings we changed
 after the fact.
 

@@ -1,9 +1,9 @@
 # Vendor app effect walk
 
-Run 2026-10-19 13:52 via `sudo python3 dump_lighting.py --app-walk`.
+Run 2026-10-19 13:52 via `sudo python3 research/dump_lighting.py --app-walk`.
 
 The vendor app was the only writer. Each snapshot is one read of the
-lighting and colour blocks taken right after the click, saved in `dumps/`
+lighting and colour blocks taken right after the click, saved in `evidence/dumps/`
 as `<block>_<timestamp>_app_<mode>_<effect>_colourful.bin` and `..._single.bin`.
 
 | mode | effect | colourful slot | colour off slot | colour G/R/B | verdict |

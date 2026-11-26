@@ -1,11 +1,11 @@
 # K61SE colour block — one 21-byte record per effect
 
 Analysis of the user's 2026-10-19 vendor-app walk (15 effects, each saved twice
-with `dump_lighting.py --save app_<effect>_rainbow` / `app_<effect>_colour`).
+with `research/dump_lighting.py --save app_<effect>_rainbow` / `app_<effect>_colour`).
 Device-free; re-run any time with
 
 ```bash
-python3 review_dumps.py --records          # pairs app_*_rainbow / app_*_colour
+python3 research/review_dumps.py --records          # pairs app_*_rainbow / app_*_colour
 ```
 
 ## What the walk shows
@@ -63,7 +63,7 @@ one stored.
 
 ## What this retracts
 
-`colour_mode_audit.md` concluded that nine effects have no colour renderer. That
+`docs/research/colour_mode_audit.md` concluded that nine effects have no colour renderer. That
 audit wrote `0x15/0x16/0x17` — solid's record — while each effect was live, so it
 coloured solid every time and left the effect under test black.
 
@@ -71,7 +71,7 @@ coloured solid every time and left the effect under test black.
 `python3 k61se_gui.py --effect-colour MODE red` with the vendor app closed:
 `0x03` stayed rainbow (the control), and **every other effect drew the red**.
 The corrected bulk `--audit` the same afternoon reproduced it exactly — **12 of
-15 both renderings, 3 flag-ignored, 0 dark** (`colour_mode_audit.md`). The
+15 both renderings, 3 flag-ignored, 0 dark** (`docs/research/colour_mode_audit.md`). The
 record model below is therefore the protocol's current answer, not a
 hypothesis, and the bench has been widened to match (`--matrix`, the GUI tick,
 one `theme_<effect>_red` preset per colour-capable effect).
@@ -83,11 +83,11 @@ run.
 
 ## Artefacts
 
-- Raw dumps: `dumps/*_20261019_13*_app_*.bin` (the `--save` walk) and
-  `dumps/*_20261019_14*_app_*.bin` (the full 15-effect sweep).
-- `app_effect_walk.md` is the earlier guided run (13:52); its verdict column uses
+- Raw dumps: `evidence/dumps/*_20261019_13*_app_*.bin` (the `--save` walk) and
+  `evidence/dumps/*_20261019_14*_app_*.bin` (the full 15-effect sweep).
+- `docs/research/app_effect_walk.md` is the earlier guided run (13:52); its verdict column uses
   the old "colour renderer" wording and predates this analysis.
-- `review_dumps.py --records` regenerates the pairing table above.
+- `research/review_dumps.py --records` regenerates the pairing table above.
 
 ## Next
 

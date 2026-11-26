@@ -2,7 +2,7 @@
 """Decode what the vendor app actually wrote, straight out of a capture folder.
 
 `snoop_session.py` stores every captured event as
-`captures/<tag>/<tag>_evt<N>_<stage>_<dir>_<size>B.bin`.  The OUT ones are the
+`evidence/captures/<tag>/<tag>_evt<N>_<stage>_<dir>_<size>B.bin`.  The OUT ones are the
 app's writes; each write is the same 520-byte feature report our tools send, so
 it can be decoded with the shared layer in `k61se_layout.py` and compared with a
 dump or with the app's previous write in the same folder.
@@ -14,6 +14,12 @@ dump or with the app's previous write in the same folder.
 
 Read-only: nothing here opens the device.
 """
+import sys
+from pathlib import Path
+ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 import argparse
 import glob
 import os
@@ -22,7 +28,7 @@ import sys
 
 import k61se_layout as layout
 
-CAPTURE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "captures")
+CAPTURE_DIR = str(ROOT / "evidence" / "captures")
 BLOCK_NAMES = {0x04: "lighting", 0x84: "lighting", 0x0A: "colour", 0x8A: "colour",
                0x08: "music", 0x88: "music",
                0x02: "info", 0x82: "info"}

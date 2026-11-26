@@ -58,7 +58,7 @@ MUSIC_OP = 0x08
 FRAME_BYTES = 378
 
 # The app's music palette, copied as wire triples from the brightest cell of
-# each column in captures/music_session_2 (evt131).  The wire order is (G,R,B),
+# each column in evidence/captures/music_session_2 (evt131).  The wire order is (G,R,B),
 # confirmed on the panel 2026-10-19, so these are converted to visible RGB here
 # and written back through wire().  The result is the app's own purple -> red ->
 # green palette; --palette rainbow is the classic cyan -> orange one.

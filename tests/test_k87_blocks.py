@@ -15,8 +15,8 @@ from kemove.colours import (
 from kemove.devices import profile_for_key
 
 ROOT = Path(__file__).resolve().parent.parent
-K87_DIR = ROOT / "captures" / "k87-probe"
-K61_DIR = ROOT / "captures" / "golden-reset"
+K87_DIR = ROOT / "evidence" / "captures" / "k87-probe"
+K61_DIR = ROOT / "evidence" / "captures" / "golden-reset"
 
 
 class K87BlockTests(unittest.TestCase):

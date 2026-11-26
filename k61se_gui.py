@@ -271,7 +271,7 @@ def apply_matrix(directory, delay, log=print, effects=None, colours=None):
     return 0
 
 
-AUDIT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "colour_mode_audit.md")
+AUDIT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "docs", "research", "colour_mode_audit.md")
 NIBBLE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "nibble_probe.md")
 
 
@@ -661,15 +661,15 @@ def selftest(directory=dev.PRESET_DIR):
 
     print("decode checks against the dumps (the evidence for the flag):")
     pairs = [
-        ("typing feedback 0x04", "dumps/lighting_20261018_193755_typing_feedback_rainbow.bin",
-         "dumps/lighting_20261018_193806_typing_feedback_red.bin"),
-        ("solid 0x01", "dumps/lighting_20261019_113902_default_solid_rainbow.bin",
-         "dumps/lighting_20261019_113914_solid_red_max_bright.bin"),
-        ("solid 0x01 app dump", "dumps/lighting_20261019_124606_solid_rainbow_app.bin",
-         "dumps/lighting_20261019_113914_solid_red_max_bright.bin"),
+        ("typing feedback 0x04", "evidence/dumps/lighting_20261018_193755_typing_feedback_rainbow.bin",
+         "evidence/dumps/lighting_20261018_193806_typing_feedback_red.bin"),
+        ("solid 0x01", "evidence/dumps/lighting_20261019_113902_default_solid_rainbow.bin",
+         "evidence/dumps/lighting_20261019_113914_solid_red_max_bright.bin"),
+        ("solid 0x01 app dump", "evidence/dumps/lighting_20261019_124606_solid_rainbow_app.bin",
+         "evidence/dumps/lighting_20261019_113914_solid_red_max_bright.bin"),
     ]
     if not os.path.exists(pairs[0][1]):
-        print("  SKIP  dumps/ not present")
+        print("  SKIP  evidence/dumps/ not present")
     for name, rainbow_path, single_path in pairs:
         if not (os.path.exists(rainbow_path) and os.path.exists(single_path)):
             print(f"  SKIP  {name} (dump missing)")

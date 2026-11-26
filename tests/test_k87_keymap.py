@@ -7,8 +7,8 @@ from pathlib import Path
 import k61se_macro as km
 
 ROOT = Path(__file__).resolve().parent.parent
-K87_BODY = ROOT / "captures" / "k87-probe" / "keymap.bin"
-K61_BODY = ROOT / "captures" / "keymap-reset.bin"
+K87_BODY = ROOT / "evidence" / "captures" / "k87-probe" / "keymap.bin"
+K61_BODY = ROOT / "evidence" / "captures" / "keymap-reset.bin"
 K87_XML = ROOT / "app" / "layouts" / "K87-1980-keyboard.xml"
 K61_XML = ROOT / "app" / "K61SE-keyboard.xml"
 

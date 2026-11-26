@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+import sys
+from pathlib import Path
+ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 import datetime
 import json
 import os
@@ -8,7 +14,7 @@ import time
 
 BUS = 3
 DEV_NODE = f"/dev/usbmon{BUS}"
-CAPTURE_DIR = "captures"
+CAPTURE_DIR = str(ROOT / "evidence" / "captures")
 
 # struct usbmon_packet layout (64 bytes in Linux kernel)
 HDR_FMT = "=QcBBBHbbqiiII8siiII"

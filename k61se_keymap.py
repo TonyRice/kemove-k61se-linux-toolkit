@@ -24,7 +24,7 @@ Examples (the dry-run examples do not open the keyboard):
     python3 k61se_keymap.py --list-actions
     python3 k61se_keymap.py --restore-stock --dry-run
     python3 k61se_keymap.py --set Space=B --dry-run \\
-        --base-file captures/keymap-reset.bin
+        --base-file evidence/captures/keymap-reset.bin
     python3 k61se_keymap.py --set Alt@17="Left Alt" --yes
     python3 k61se_keymap.py --restore-stock --yes
 
@@ -48,11 +48,11 @@ from kemove.devices import profile_for_key
 from kemove.discovery import find as find_device
 
 ROOT = Path(__file__).resolve().parent
-DEFAULT_STOCK = ROOT / "captures" / "keymap-reset.bin"
-DEFAULT_SAVE_DIR = ROOT / "captures" / "keymap-write"
+DEFAULT_STOCK = ROOT / "evidence" / "captures" / "keymap-reset.bin"
+DEFAULT_SAVE_DIR = ROOT / "evidence" / "captures" / "keymap-write"
 DEFAULT_STOCKS = {
     "k61se": DEFAULT_STOCK,
-    "k87-1980": ROOT / "captures" / "k87-probe" / "keymap.bin",
+    "k87-1980": ROOT / "evidence" / "captures" / "k87-probe" / "keymap.bin",
 }
 KEYMAP_OP = km.KEYMAP_OP
 KEYMAP_SIZE = km.KEYMAP_SIZE

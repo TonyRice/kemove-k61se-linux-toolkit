@@ -39,8 +39,8 @@ The current toolkit is a Python project with a flat set of scripts:
 - Lighting/colour/power/typing/music: `k61se_layout.py`, `k61se_keys.py`,
   `k61se_power.py`, `k61se_typing.py`, `k61se_music*.py`
 - Tkinter GUI: `k61se_gui.py`
-- Research and capture tools: `sniffer.py`, `snoop_session.py`,
-  `dump_lighting.py`, `review_*.py`, `read_desc.py`, `payloads.py`
+- Research and capture tools: `research/sniffer.py`, `research/snoop_session.py`,
+  `research/dump_lighting.py`, `review_*.py`, `research/read_desc.py`, `research/payloads.py`
 - Protocol reference: `PROTOCOL.md`
 
 The device-facing surface is relatively small: open the HID device, exchange
@@ -267,9 +267,9 @@ useful.
 | `k61se_typing.py` | CLI/effects layer | 4 |
 | `k61se_music*.py` | later / optional | 5 |
 | `k61se_gui.py` | future GUI | deferred |
-| `sniffer.py`, `snoop_session.py`, `review_*.py`, `dump_lighting.py`, `read_desc.py` | keep Python in `research/` | n/a |
+| `research/sniffer.py`, `research/snoop_session.py`, `review_*.py`, `research/dump_lighting.py`, `research/read_desc.py` | keep Python in `research/` | n/a |
 | `PROTOCOL.md` | shared specification | source of truth |
-| `captures/golden-reset/`, `captures/keymap-reset.bin` | `data/fixtures/` | test fixtures |
+| `evidence/captures/golden-reset/`, `evidence/captures/keymap-reset.bin` | `data/fixtures/` | test fixtures |
 
 ## 8. Migration Phases
 

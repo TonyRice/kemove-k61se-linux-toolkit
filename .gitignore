@@ -11,15 +11,15 @@ venv/
 *.log
 
 # Large local evidence; keep the small canonical fixtures below.
-dumps/
-captures/*
-!captures/SESSION_INDEX.md
-!captures/keymap-reset.bin
-!captures/keymap-stock.bin
-!captures/k87-probe/
-!captures/k87-probe/**
-!captures/golden-reset/
-!captures/golden-reset/**
+evidence/dumps/
+evidence/captures/*
+!evidence/captures/SESSION_INDEX.md
+!evidence/captures/keymap-reset.bin
+!evidence/captures/keymap-stock.bin
+!evidence/captures/k87-probe/
+!evidence/captures/k87-probe/**
+!evidence/captures/golden-reset/
+!evidence/captures/golden-reset/**
 
 # Vendor application binaries; the keyboard XML is kept.
 app/*.exe

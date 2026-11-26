@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Review the .bin dumps written by `dump_lighting.py --save [LABEL]`.
+"""Review the .bin dumps written by `research/dump_lighting.py --save [LABEL]`.
 
 Dumps are named  <block>_<timestamp>[_<label>][_<n>].bin  so a labelled save
 reads back as e.g. `lighting_20261018_193001_green.bin`.
@@ -31,6 +31,12 @@ read-out), so a diff reads like:
   2 changed byte(s):
     entry[ 0] @0x3A  05 57 -> 02 50   (rgb565? #52E229 -> #520010)
 """
+import sys
+from pathlib import Path
+ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 import fnmatch
 import glob
 import os
@@ -40,7 +46,7 @@ import time
 
 import k61se_layout as layout
 
-DUMP_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dumps")
+DUMP_DIR = str(ROOT / "evidence" / "dumps")
 NAME_RE = re.compile(r"^(?P<block>[A-Za-z0-9]+)_(?P<ts>\d{8}_\d{6})(?P<rest>.*)\.bin$")
 
 

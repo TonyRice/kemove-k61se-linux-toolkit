@@ -12,8 +12,8 @@ marked **guess / unknown**. The byte dumps are authoritative; decodes are not.
   (factory reset).
 
 Repository note: the public Git repository tracks the source, docs, the vendor
-keyboard XML, and the small canonical reset fixtures. The full `captures/`
-archive, `dumps/`, and vendor app binaries are local evidence and are ignored.
+keyboard XML, and the small canonical reset fixtures. The full `evidence/captures/`
+archive, `evidence/dumps/`, and vendor app binaries are local evidence and are ignored.
 
 ---
 
@@ -113,7 +113,7 @@ Offsets are **body** offsets (after the 8-byte frame).
 So `0x57` is "level 5, rainbow" and `0x50` is "level 5, single colour" — two
 different renderings of the same effect. (The firmware only has a single-colour
 renderer for three of the fifteen effects; on the rest `0x50` means *nothing
-drawn*. See §3 and `colour_mode_audit.md`.)
+drawn*. See §3 and `docs/research/colour_mode_audit.md`.)
 
 Proven on 2026-10-19, from two experiments run on mode `0x11`:
 
@@ -184,7 +184,7 @@ block holds **one colour record per effect**, and the audit only ever wrote
 closed settled it: `k61se_gui.py --effect-colour MODE red` turned **all twelve
 remaining effects red**, while `0x03` (the control) stayed colourful. The
 corrected bulk `--audit` then reproduced that exactly — **12 of 15 both
-renderings, 3 flag-ignored, 0 dark** (`colour_mode_audit.md`). So:
+renderings, 3 flag-ignored, 0 dark** (`docs/research/colour_mode_audit.md`). So:
 
 | flag off | effects | what the panel does |
 |---|---|---|
@@ -295,7 +295,7 @@ single mistake explains a lot of history, see below.
 ### How it was proven (2026-10-19 app walk)
 
 The user stepped through all 15 effects in the vendor app and saved a dump with
-"colourful" **on** and **off** for each (`dump_lighting.py --save`). Pairing the
+"colourful" **on** and **off** for each (`research/dump_lighting.py --save`). Pairing the
 two dumps per effect shows what the app actually wrote, and the changed byte in
 the colour block is always `21*mode + 1`:
 
@@ -348,10 +348,10 @@ The same walk retires two old mysteries:
 - **The app's own colour write is captured**, and it settles the write format:
 
   ```
-  captures/color_red/color_red_evt8_submit_out_520B.bin
+  evidence/captures/color_red/color_red_evt8_submit_out_520B.bin
     06 0a 00 00 01 00 a4 01 | <420-byte body>
   ```
-  That 420-byte body is **byte-identical** to `dumps/colour_*_red.bin`, so the
+  That 420-byte body is **byte-identical** to `evidence/dumps/colour_*_red.bin`, so the
   colour write path is a copy of the read path with the `0x80` bit cleared —
   no separate "apply" sequencing (the app writes lighting first, then colour).
 - That also explains the app's "rainbow" colour swatch, a red herring: its body is
@@ -372,8 +372,8 @@ The same walk retires two old mysteries:
 
 ## 5a. Music frame block (`op 0x08`, 378 bytes)
 
-Captured 2026-10-19 with `snoop_session.py` while the vendor app was in music
-mode and playing music (`captures/music_session/`, `music_session_2/`).
+Captured 2026-10-19 with `research/snoop_session.py` while the vendor app was in music
+mode and playing music (`evidence/captures/music_session/`, `music_session_2/`).
 
 The app **streams** this block at about **22 frames/s** (149 frames in 6.76 s;
 typical spacing 16–30 ms, occasional 100–220 ms timer hiccups). It sends
@@ -491,7 +491,7 @@ lit red, not green.
 
 **Status 2026-10-20: keymap write/read confirmed on K61SE hardware.** The
 vendor app's own `0x03` writes and `0x83` readbacks were captured in
-`captures/keymap_write/` and `captures/keymap_switch_back_to_default/`; the
+`evidence/captures/keymap_write/` and `evidence/captures/keymap_switch_back_to_default/`; the
 readback is the same shape as the write. The macro block is still statically
 recovered only. The wired `CDevG5KB` vtable in `app/KBAccess.dll` uses the same
 command family as the wired AULA F75, whose protocol is already documented and
@@ -523,16 +523,16 @@ The captured app sequence is **read, then write**:
 06 03 00 00 01 00 F8 01   write, 504-byte body
 ```
 
-`captures/keymap_write/` changed only key_index 35 (Space):
+`evidence/captures/keymap_write/` changed only key_index 35 (Space):
 `00 00 00 2C` -> `00 00 00 08` (HID E). The prior readback was the 60/60
-factory XML map and is saved as `captures/keymap-stock.bin` (504-byte body).
-`captures/keymap_switch_back_to_default/` then changed key_index 17 (Left Alt):
+factory XML map and is saved as `evidence/captures/keymap-stock.bin` (504-byte body).
+`evidence/captures/keymap_switch_back_to_default/` then changed key_index 17 (Left Alt):
 `00 04 00 00` -> `00 00 00 08` (HID E), and re-sent the same body; it did not
 restore Left Alt. These are useful protocol evidence, not a recommended remap.
-The later Fn+Tab snapshot in `captures/golden-reset/` supersedes the app
+The later Fn+Tab snapshot in `evidence/captures/golden-reset/` supersedes the app
 readback as the canonical reset baseline: it has Fn at cell 83 and the
 duplicate `\` at reserved cell 75. Its raw layer-0 body is saved as
-`captures/keymap-reset.bin`. Use
+`evidence/captures/keymap-reset.bin`. Use
 `python3 k61se_keymap.py --restore-stock --yes` to put that body back, with
 the pre/post evidence described in the `k61se_keymap.py` tool section (§7).
 
@@ -643,7 +643,7 @@ reply. It still only sends read requests.
 
 It reads `0x83` for each requested layer and `0x85` for the macro area, prints
 the decoded keymap and macro events, and saves raw bodies plus `probe.json`
-under `captures/macro-probe/` when `--save` is used. `--macro-size` can go up to
+under `evidence/captures/macro-probe/` when `--save` is used. `--macro-size` can go up to
 4096; the device layer splits that into 512-byte chunks using the frame's
 chunk-count/chunk-index bytes. Close the vendor app first — the probe only
 reads, but the app competes for report 6.
@@ -651,8 +651,8 @@ reads, but the app competes for report 6.
 Offline decoding of an existing dump needs no keyboard:
 
 ```bash
-python3 k61se_macro.py --decode-keymap captures/macro-probe/keymap-layer0.bin
-python3 k61se_macro.py --decode-macros captures/macro-probe/macros-512.bin
+python3 k61se_macro.py --decode-keymap evidence/captures/macro-probe/keymap-layer0.bin
+python3 k61se_macro.py --decode-macros evidence/captures/macro-probe/macros-512.bin
 ```
 
 Expected signs that `0x83` really is the keymap: cell 1 is
@@ -691,7 +691,7 @@ The first hardware run on 2026-10-20 used `--name test1 --text abc --yes`
 prefix matched exactly, so the F75-style payload layout is now write/readback
 verified for this case. Playback and key binding still need a separate test.
 The tool saves `pre-*.bin`, `write-*.bin`, `post-*.bin`, and `result-*.json`
-under `captures/macro-write/`, and leaves the macro unbound. If a future
+under `evidence/captures/macro-write/`, and leaves the macro unbound. If a future
 readback differs, hold Fn+Tab for 5 seconds.
 
 The next test binds macro index 0 to a safe key. `Menu` is key 59 and is a good
@@ -731,7 +731,7 @@ panel lit  ==  (mode 0x0A != 0)
 | **black colour record** (`entry+1` low nibble `0`, record `00 00 00`) | app / our tools | ✅ write a colour or the nibble back to `7` | ✅ | ✅ reads `05 50`, e.g. `mode=0x11 slot[16]=05 50` |
 
 The last row used to be documented as "no colour renderer" (see §3 and
-`colour_mode_audit.md`), on the strength of an audit that wrote *solid's* colour
+`docs/research/colour_mode_audit.md`), on the strength of an audit that wrote *solid's* colour
 record while other effects were live. Since the walk showed each effect has its
 own record (§5), the honest reading is that those effects had a **black** record.
 That is now confirmed: `--effect-colour` reddened all twelve colour-capable
@@ -784,27 +784,27 @@ Practical consequences:
 The read-only tools need `sudo` only because `/dev/hidraw*` is normally
 root-owned. On this machine a uaccess ACL already grants the desktop user
 read-write on the K61SE nodes (`getfacl /dev/hidraw4` → `user:tony:rw-`), so the
-test bench runs unprivileged. `dump_lighting.py` still wants `sudo` for its
-*saves*, because `dumps/` was created by earlier root runs
+test bench runs unprivileged. `research/dump_lighting.py` still wants `sudo` for its
+*saves*, because `evidence/dumps/` was created by earlier root runs
 (`drwxr-xr-x root root`) — or `chown` it once.
 
-### `dump_lighting.py` — universal read-only reader
+### `research/dump_lighting.py` — universal read-only reader
 
 ```bash
-sudo python3 dump_lighting.py --manual             # RECOMMENDED: you name each theme
-sudo python3 dump_lighting.py                      # lighting + colour
-sudo python3 dump_lighting.py lighting             # just the 128-byte block
-sudo python3 dump_lighting.py --save green         # label a one-off save
-sudo python3 dump_lighting.py --op 0x02 --sub 1 --size 6
-sudo python3 dump_lighting.py --sweep              # compact content browser 0x00..0x1F
-sudo python3 dump_lighting.py --passive            # does a bare GET see the app's writes?
-sudo python3 dump_lighting.py --watch              # passive auto-capture (never sends)
-sudo python3 dump_lighting.py --watch --active     # request-polling: app must be CLOSED
-sudo python3 dump_lighting.py --app-walk           # guided: app colours each effect, we read
+sudo python3 research/dump_lighting.py --manual             # RECOMMENDED: you name each theme
+sudo python3 research/dump_lighting.py                      # lighting + colour
+sudo python3 research/dump_lighting.py lighting             # just the 128-byte block
+sudo python3 research/dump_lighting.py --save green         # label a one-off save
+sudo python3 research/dump_lighting.py --op 0x02 --sub 1 --size 6
+sudo python3 research/dump_lighting.py --sweep              # compact content browser 0x00..0x1F
+sudo python3 research/dump_lighting.py --passive            # does a bare GET see the app's writes?
+sudo python3 research/dump_lighting.py --watch              # passive auto-capture (never sends)
+sudo python3 research/dump_lighting.py --watch --active     # request-polling: app must be CLOSED
+sudo python3 research/dump_lighting.py --app-walk           # guided: app colours each effect, we read
 ```
 
 - Sends **only** read requests; never writes.
-- `--save [LABEL]` writes `dumps/<block>_<timestamp>[_<label>].bin` and
+- `--save [LABEL]` writes `evidence/dumps/<block>_<timestamp>[_<label>].bin` and
   auto-diffs against the previous dump of that block. Saves never collide
   (a same-second second save gets a `_2` suffix).
 - **`--manual` is the recommended way to sweep the app's themes.** It reads
@@ -818,11 +818,11 @@ sudo python3 dump_lighting.py --app-walk           # guided: app colours each ef
   press Enter; the tool reads lighting + colour and saves a labelled pair; you
   then flip the app's "colourful" toggle off and press Enter again. It diffs the
   two snapshots byte by byte, prints what moved, and writes
-  `app_effect_walk.md` with a verdict per effect:
+  `docs/research/app_effect_walk.md` with a verdict per effect:
   `has a colour renderer`, `the app kept the flag on`, `the firmware ignores
   it`, `the firmware draws nothing`, or — the interesting one — `the app
   changed the MODE 0x08 -> 0x0A`. `s` skips a step, `q` finishes early,
-  `--start 0x0B` resumes. Read-only; the app stays open. `dumps/` grows by up to 60
+  `--start 0x0B` resumes. Read-only; the app stays open. `evidence/dumps/` grows by up to 60
   files (15 effects × 2 renderings × 2 blocks).
 - `--watch` (passive) auto-captures instead. It only ever GETs report 6 and
   never sends a request, so it cannot disturb the app — but it only sees the
@@ -832,19 +832,19 @@ sudo python3 dump_lighting.py --app-walk           # guided: app colours each ef
   app: sustained polling of shared report 6 stops the vendor app from finding
   the keyboard. Use it only with the app closed.
 
-### `review_dumps.py` — diff the dumps
+### `research/review_dumps.py` — diff the dumps
 
 ```bash
-python3 review_dumps.py                    # list saves
-python3 review_dumps.py -l green           # list label "green"
-python3 review_dumps.py -d                 # diff the two most recent
-python3 review_dumps.py -d red green       # by label
-python3 review_dumps.py -d lighting:red lighting:green
-python3 review_dumps.py -d 3 5             # by list index
-python3 review_dumps.py -s green           # annotated hex dump
-python3 review_dumps.py -v                  # what VARIES across all dumps
-python3 review_dumps.py -v lighting         # ... just the lighting block
-python3 review_dumps.py -v colour theme_*   # ... just matching labels
+python3 research/review_dumps.py                    # list saves
+python3 research/review_dumps.py -l green           # list label "green"
+python3 research/review_dumps.py -d                 # diff the two most recent
+python3 research/review_dumps.py -d red green       # by label
+python3 research/review_dumps.py -d lighting:red lighting:green
+python3 research/review_dumps.py -d 3 5             # by list index
+python3 research/review_dumps.py -s green           # annotated hex dump
+python3 research/review_dumps.py -v                  # what VARIES across all dumps
+python3 research/review_dumps.py -v lighting         # ... just the lighting block
+python3 research/review_dumps.py -v colour theme_*   # ... just matching labels
 ```
 
 - Diffs name known offsets and show entry-table changes as raw byte pairs with a
@@ -856,31 +856,31 @@ python3 review_dumps.py -v colour theme_*   # ... just matching labels
   red green` reports the two lighting blocks are byte-identical, so colour lives
   purely in the colour block.)
 
-### `snoop_session.py` — raw USB capture (interactive)
+### `research/snoop_session.py` — raw USB capture (interactive)
 
 ```bash
-sudo python3 snoop_session.py
+sudo python3 research/snoop_session.py
 # prompts: "Enter action tag (e.g. 'off', 'static_white') [q to quit]:"
 ```
 
-- Captures the **whole bus**, one action per tag, into `captures/<tag>/`.
+- Captures the **whole bus**, one action per tag, into `evidence/captures/<tag>/`.
 - Writes a full `.raw` usbmon record per event plus a Markdown report, and
-  appends to `captures/SESSION_INDEX.md`.
+  appends to `evidence/captures/SESSION_INDEX.md`.
 - Enlarges the usbmon ring to 64 MiB (override with `USB_MON_RING_SIZE`) because
   the ~300 KB default silently drops events during app startup.
 - **Filters out**: ISO and Bulk transfers, and **all INTR IN** (keyboard/mouse
   polling). INTR **OUT** is kept.
 
-### `review_captures.py` — decode what the app actually wrote
+### `research/review_captures.py` — decode what the app actually wrote
 
 ```bash
-python3 review_captures.py              # one row per capture folder
-python3 review_captures.py -i           # list the folders and their event counts
-python3 review_captures.py -d wave_colour        # one folder, event by event
-python3 review_captures.py -d wave_colour -v     # + every byte that moved
+python3 research/review_captures.py              # one row per capture folder
+python3 research/review_captures.py -i           # list the folders and their event counts
+python3 research/review_captures.py -d wave_colour        # one folder, event by event
+python3 research/review_captures.py -d wave_colour -v     # + every byte that moved
 ```
 
-- Reads the `.bin` files `snoop_session.py` saved and decodes each 520-byte
+- Reads the `.bin` files `research/snoop_session.py` saved and decodes each 520-byte
   report with the shared layer, so a capture is read the same way a dump is:
   `evt4 OUT write lighting mode=0x0B rainbow wave slot[10]=05 57 speed fast (5/5), rainbow`,
   `evt8 OUT write colour G/R/B=00/FF/00 …`.
@@ -933,7 +933,7 @@ dev.set_state(effect=0x0B, brightness=5, speed=5, colour=(255, 0, 0))
 ```
 
 - Frame construction is byte-for-byte what the vendor app sends (verified against
-  `captures/color_red/`), for both blocks and both directions.
+  `evidence/captures/color_red/`), for both blocks and both directions.
 - A short/empty feature report is retried (3 attempts) because report 6 is
   single-slot and both the app and a re-enumerating node can steal it. When the
   caller does not pass a handle, each block op opens afresh, so a hidraw node that
@@ -1000,7 +1000,7 @@ python3 k61se_gui.py --selftest         # device-free checks, no keyboard needed
 - `--audit` is the one test that needs eyes: it writes every effect twice (flag
   on, then flag off plus red `(255,0,0)` written into **that effect's own**
   record) and asks what the panel did — `y`, `n` or `d` for dark — then writes
-  `colour_mode_audit.md` and **restores the last effect's rainbow rendering**, so
+  `docs/research/colour_mode_audit.md` and **restores the last effect's rainbow rendering**, so
   a run cannot leave a blank keyboard behind. The block is identical either way,
   so the panel is the only instrument. Its first run is retracted (§3/§5) because
   it wrote solid's record every time; the targeted `--effect-colour` run has
@@ -1149,8 +1149,8 @@ python3 k61se_typing.py --seconds 60 --echo
 python3 k61se_macro.py --probe
 python3 k61se_macro.py --probe --layers 0,1,2,3 --macro-size 4096 --save
 python3 k61se_macro.py --echo-test
-python3 k61se_macro.py --decode-keymap captures/macro-probe/keymap-layer0.bin
-python3 k61se_macro.py --decode-macros captures/macro-probe/macros-4096.bin
+python3 k61se_macro.py --decode-keymap evidence/captures/macro-probe/keymap-layer0.bin
+python3 k61se_macro.py --decode-macros evidence/captures/macro-probe/macros-4096.bin
 ```
 
 - **Read-only:** it only sends `0x83`/`0x85` read requests. It cannot write a
@@ -1168,7 +1168,7 @@ python3 k61se_macro.py --decode-macros captures/macro-probe/macros-4096.bin
 - `--macro-size` defaults to 512. Use `4096` for a complete macro area; the
   shared device layer splits it into 512-byte chunks.
 - `--save` writes raw `keymap-layerN.bin`, `macros-N.bin`, and `probe.json`
-  under `captures/macro-probe/` (not the root-owned `dumps/` directory).
+  under `evidence/captures/macro-probe/` (not the root-owned `evidence/dumps/` directory).
 - `--decode-keymap` and `--decode-macros` work on saved bodies and never open
   the keyboard, so they are safe to run while the app is open.
 - The vendor app must be closed for a clean `--probe`: the probe only reads,
@@ -1185,9 +1185,9 @@ python3 k61se_macro.py --decode-macros captures/macro-probe/macros-4096.bin
 python3 k61se_keymap.py --read
 
 # Offline: decode a saved body, or show a remap without touching the device
-python3 k61se_keymap.py --read --base-file captures/keymap-reset.bin
+python3 k61se_keymap.py --read --base-file evidence/captures/keymap-reset.bin
 python3 k61se_keymap.py --set Space=B --dry-run \
-  --base-file captures/keymap-reset.bin
+  --base-file evidence/captures/keymap-reset.bin
 
 # Explicit writes: require --yes and read back
 python3 k61se_keymap.py --set Space=B --yes
@@ -1203,7 +1203,7 @@ python3 k61se_keymap.py --restore-stock --yes
   `--set ... --dry-run --base-file` are fully offline.
 - `--set` builds the map from `--base auto|stock|device` or `--base-file`.
   `auto` uses the live map when it looks populated, otherwise
-  `captures/keymap-reset.bin`; a factory-empty all-zero map cannot be used as
+  `evidence/captures/keymap-reset.bin`; a factory-empty all-zero map cannot be used as
   a base. A heavily customised map that fails the factory-layout check needs
   an explicit `--base device --force` (or `--base-file FILE --force`).
 - Key names come from `app/K61SE-keyboard.xml`. Duplicate names such as Alt
@@ -1217,7 +1217,7 @@ python3 k61se_keymap.py --restore-stock --yes
   it deliberately; that is the recovery path for the accidental Left Alt=E
   remap.
 - Every write saves `pre-*.bin`, `write-*.bin`, `post-*.bin`, and
-  `result-*.json` under `captures/keymap-write/`, then compares the readback
+  `result-*.json` under `evidence/captures/keymap-write/`, then compares the readback
   with the body written. A mismatch exits non-zero and keeps both files.
 - Close the vendor app first. If another process has the keyboard open, the
   tool refuses to write unless `--force` is passed.
@@ -1228,19 +1228,19 @@ python3 k61se_keymap.py --restore-stock --yes
 
 ```bash
 # Vendor app closed
-python3 k61se_snapshot.py --capture captures/reset-before
+python3 k61se_snapshot.py --capture evidence/captures/reset-before
 
 # Hold Fn + Tab for 5 seconds, then capture again
-python3 k61se_snapshot.py --capture captures/reset-after
+python3 k61se_snapshot.py --capture evidence/captures/reset-after
 
 # Offline: show exactly what the factory reset changed
-python3 k61se_snapshot.py --diff captures/reset-before captures/reset-after
+python3 k61se_snapshot.py --diff evidence/captures/reset-before evidence/captures/reset-after
 
 # Show the restore plan without touching the device
-python3 k61se_snapshot.py --restore captures/golden-reset --dry-run
+python3 k61se_snapshot.py --restore evidence/captures/golden-reset --dry-run
 
 # Explicitly restore lighting, colour, and keymap layer 0
-python3 k61se_snapshot.py --restore captures/golden-reset --yes
+python3 k61se_snapshot.py --restore evidence/captures/golden-reset --yes
 ```
 
 - **Capture and diff are read-only.** They send `0x82`/`0x84`/`0x8A`/`0x83`/
@@ -1264,9 +1264,9 @@ python3 k61se_snapshot.py --restore captures/golden-reset --yes
 - Restore skips macros because `0x05` is still unverified. Keymap layers
   above 0 are also unverified and require `--layers 0-7 --force`; the default
   restore is layer 0 only. Info is read-only.
-- The Fn+Tab snapshot in `captures/golden-reset/` is the canonical reset
+- The Fn+Tab snapshot in `evidence/captures/golden-reset/` is the canonical reset
   image. Its keymap has Fn at cell 83 and a duplicate `\` at reserved cell 75;
-  the older `captures/keymap-stock.bin` app readback does not.
+  the older `evidence/captures/keymap-stock.bin` app readback does not.
 
 ### `k61se_keys.py` — static per-key painter
 
@@ -1501,12 +1501,12 @@ python3 k61se_music_live.py --design-file designs/music/psychedelic.json
 ## 8. Working method (capture → label → diff)
 
 1. Close the vendor app if you want the Python tools to win (see §9).
-2. `sudo python3 dump_lighting.py --save <label>` before the change.
+2. `sudo python3 research/dump_lighting.py --save <label>` before the change.
 3. Make the change **in the vendor app** (user action).
-4. `sudo python3 dump_lighting.py --save <label>` after the change.
-5. `python3 review_dumps.py -d <label> <label>` to see exactly which bytes moved.
+4. `sudo python3 research/dump_lighting.py --save <label>` after the change.
+5. `python3 research/review_dumps.py -d <label> <label>` to see exactly which bytes moved.
 6. For write-level detail (opcode, order, timing) capture the app with
-   `snoop_session.py` under a descriptive tag and read the Markdown report.
+   `research/snoop_session.py` under a descriptive tag and read the Markdown report.
 
 Paired `lighting` + `colour` dumps per state is what cracked the mode enum, so
 always save **both blocks** unless you have a reason not to.
@@ -1519,7 +1519,7 @@ always save **both blocks** unless you have a reason not to.
   write it disagrees with snaps back within a moment. The symptom is exactly
   "`off` does nothing but `on` works". Close the app (check for
   `winedevice.exe` under Wine) before driving the keyboard from Python.
-- **`dumps/` is root-owned** (created by `sudo` runs), so non-root saves fail.
+- **`evidence/dumps/` is root-owned** (created by `sudo` runs), so non-root saves fail.
 - Two root-owned `__pycache__` files break plain `python3 -m py_compile`; use
   `PYTHONDONTWRITEBYTECODE=1`.
 - **usbmon `read(2)` returns the 48-byte API0 header** — payload starts at
@@ -1553,12 +1553,12 @@ per-key colour, music mode) rather than the record layout.
 ```bash
 python3 k61se_gui.py --effect-colour 0x0A red   # one effect, app closed — watch the panel
 python3 k61se_gui.py --read                     # the byte that moved
-sudo python3 dump_lighting.py --save <label>    # or capture the app the slow way
-python3 review_dumps.py -v                      # every offset that varied
+sudo python3 research/dump_lighting.py --save <label>    # or capture the app the slow way
+python3 research/review_dumps.py -v                      # every offset that varied
 ```
 
 One capture per theme, named by you, one read each — the app can stay open. If
-you would rather not type, `sudo python3 dump_lighting.py --watch` auto-captures
+you would rather not type, `sudo python3 research/dump_lighting.py --watch` auto-captures
 passively instead, at the cost of sometimes missing one of the two blocks a
 theme change writes.
 
@@ -1664,11 +1664,11 @@ Protocol: once music plays the app streams `op 0x08` frames — see §5a. A
 The keymap command pair is now confirmed by the 2026-10-20 captures. Remaining
 steps:
 
-1. ~~Keep the captured stock body from `captures/keymap_write/` as the
-   canonical baseline.~~ Done: `captures/golden-reset/` and
-   `captures/keymap-reset.bin` are the canonical Fn+Tab reset state. It has Fn
+1. ~~Keep the captured stock body from `evidence/captures/keymap_write/` as the
+   canonical baseline.~~ Done: `evidence/captures/golden-reset/` and
+   `evidence/captures/keymap-reset.bin` are the canonical Fn+Tab reset state. It has Fn
    at cell 83, the duplicate `\` at reserved cell 75, and slot 0 zero. The
-   older `captures/keymap-stock.bin` app readback remains for comparison.
+   older `evidence/captures/keymap-stock.bin` app readback remains for comparison.
 2. ~~Probe all layers after a factory reset and compare them.~~ Done
    2026-10-20: layers 0–7 all read back identical (SHA-256
    `39d19f848c013ffd9c65ddbd16c1a013136fcc8fed9175e244ca9025d968cc1a`).
@@ -1686,7 +1686,7 @@ steps:
    `0x85` readback prefix matched exactly. Macro keymap binding is now enabled
    as `macro:0`; playback/binding remains the next hardware test.
 6. ~~Capture before/after Fn+Tab and use the post-reset snapshot as a golden
-   image.~~ Done: `captures/golden-reset/` and `captures/keymap-reset.bin` are
+   image.~~ Done: `evidence/captures/golden-reset/` and `evidence/captures/keymap-reset.bin` are
    the canonical reset state. `k61se_snapshot.py --restore` writes lighting,
    colour, and keymap layer 0 with a pre-restore snapshot and per-block
    readback. Macros and unverified keymap layers remain skipped by default.
@@ -1753,7 +1753,7 @@ keymap writes in a separate explicit tool with a pre-write dump and readback.
     Answered 2026-10-20: the body uses `4 * key_index` directly. Layers 0–7
     read back identical after Fn+Tab. Slot 0 is reserved and zero in the reset
     snapshot; the older app readback had a duplicate Esc there. The reset
-    snapshot is saved as `captures/golden-reset/`.
+    snapshot is saved as `evidence/captures/golden-reset/`.
 15. How many remap layers does the K61SE expose, and does `SetLayerCount` live
     only in the host SDK? `KBAccess` accepts 1–8 but the packet has no layer
     count field.
@@ -1840,7 +1840,7 @@ Things we believed and then disproved — recorded so nobody re-derives them:
   that disproof is itself retracted below: the audit wrote solid's record for
   every effect. **Confirmed 2026-10-19:** 12 of 15 effects draw their own colour
   and 3 (`0x03` rotating, `0x0F` spinning, `0x10` wave 2) ignore the flag and
-  render identically to their rainbow version (`colour_mode_audit.md`).
+  render identically to their rainbow version (`docs/research/colour_mode_audit.md`).
 - ~~"A `no` to the audit's second question means the effect ignored the flag and
   stayed colourful."~~ On the first (yes/no) run it usually meant the panel went
   **blank** — the script offered no way to say that, so it wrote a misleading

@@ -26,16 +26,16 @@ closed: it consumes report 6 and its state changes between blocks.
 Examples:
 
     # Before a reset
-    python3 k61se_snapshot.py --capture captures/reset-before
+    python3 k61se_snapshot.py --capture evidence/captures/reset-before
 
     # Hold Fn + Tab for 5 seconds, then
-    python3 k61se_snapshot.py --capture captures/reset-after
+    python3 k61se_snapshot.py --capture evidence/captures/reset-after
 
     # Offline: show exactly what the reset changed
-    python3 k61se_snapshot.py --diff captures/reset-before captures/reset-after
+    python3 k61se_snapshot.py --diff evidence/captures/reset-before evidence/captures/reset-after
 
     # Explicitly write the golden blocks back (lighting, colour, keymap layer 0)
-    python3 k61se_snapshot.py --restore captures/golden-reset --yes
+    python3 k61se_snapshot.py --restore evidence/captures/golden-reset --yes
 """
 from __future__ import annotations
 

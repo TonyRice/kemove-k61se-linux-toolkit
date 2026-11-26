@@ -9,7 +9,7 @@ went blank, i.e. the firmware drew nothing at all for that write.
 
 Supersedes the first run of 2026-10-19, which wrote solid's record for
 every effect; that run's nine "dark" verdicts are retracted (PROTOCOL.md
-§3, `colour_records.md`). The panel is the only instrument here.
+§3, `docs/research/colour_records.md`). The panel is the only instrument here.
 
 | mode | effect | colourful | single colour | verdict |
 |---|---|---|---|---|

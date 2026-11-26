@@ -183,14 +183,14 @@ python3 k61se_keymap.py --read
 python3 k61se_keymap.py --profile k87-1980 --read
 python3 k61se_macro.py --probe --profile k87-1980
 python3 k61se_keymap.py --profile k87-1980 \
-  --base-file captures/k87-probe/keymap.bin --set A=B --dry-run
+  --base-file evidence/captures/k87-probe/keymap.bin --set A=B --dry-run
 ```
 
 To verify the wired protocol and measure the blocks:
 
 ```bash
 python3 -m kemove.probe --read-keymap
-python3 -m kemove.probe --read-all --save-dir captures/k87-probe
+python3 -m kemove.probe --read-all --save-dir evidence/captures/k87-probe
 ```
 
 `--read-keymap` sets the read bit (`0x83`); `--read-lighting` uses `0x84` and

@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+import sys
+from pathlib import Path
+ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 import datetime
 import fcntl
 import os
@@ -48,7 +54,7 @@ HDR_SIZE_API0 = struct.calcsize(HDR_FMT_API0)  # 48
 HDR_SIZE_API1 = struct.calcsize(HDR_FMT_API1)  # 64
 SETUP_FMT = "<BBHHH"  # bmRequestType, bRequest, wValue, wIndex, wLength
 READ_BUF_SIZE = 262144  # 256KB buffer prevents kernel packet truncation desync
-CAPTURE_DIR = "captures"
+CAPTURE_DIR = str(ROOT / "evidence" / "captures")
 
 # MON_IOCG_STATS = _IOR(0x92, 3, struct mon_bin_stats{u32 queued; u32 dropped;})
 # Lets us prove whether usbmon itself dropped events (ring overflow).
@@ -178,7 +184,7 @@ def get_usbmon_stats(fd):
 
 
 def prepare_capture_dir(clean_tag):
-    """(Re)creates captures/<tag>/ and wipes any previous capture for that tag.
+    """(Re)creates evidence/captures/<tag>/ and wipes any previous capture for that tag.
 
     Each identifier owns exactly one folder and one capture set: re-running the
     same tag removes the old files first, so stale .bin/.raw/.md never pile up
