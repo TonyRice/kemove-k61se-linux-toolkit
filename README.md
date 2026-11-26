@@ -34,8 +34,10 @@ python3 -m kemove.lighting_cli set --profile k87-1980 \
 # Live speaker-driven visualiser on the K87
 python3 kemove_music_live.py --profile k87-1980 --seconds 10 --force
 
-# Does the side strip respond to the real-time frame? Static red test:
-python3 kemove_music_live.py --profile k87-1980 --side-test --seconds 3 --force
+# The side strip is separate from the main real-time frame.
+# Set its hardware effect/colour before starting the music:
+python3 -m kemove.lighting_cli set --profile k87-1980 \
+  --side-mode 1 --side-colour 2 --yes --force
 python3 -m kemove.lighting_cli set --profile k87-1980 \
   --restore evidence/captures/k87-before/lighting.bin --yes --force
 ```
